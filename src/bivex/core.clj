@@ -1,10 +1,6 @@
-(ns bivex.core)
+(ns bivex.core
+  (:require [bivex.rules]))
 ;  (:require [bivex.chromatin :as bc] ))
-
-(defn foo
-  "I don't do a whole lot."
-  [x]
-  (println x "Hello, World!"))
 
 (defn -main
   "main function to run bivex"
@@ -16,10 +12,9 @@
   [h, k4, k27]
   {:head h
    :k4 k4
-   :k27 k27}
-  )
+   :k27 k27})
 
-(def nucleosome (create-nucleosome 0 "0" "0"))
+(def nucleosome (create-nucleosome 0 0 0))
 
 ;;(def chromtape (clojure.string/join "_" (repeat 10 nucleosome)))
 
@@ -28,41 +23,23 @@
 ;;   (map-indexed (fn [i v] [i v]) [(create-nucleosome 1 "0" "0") (vec (repeat 9 nucleosome))]))
 
 (def chromtape
-  (map-indexed (fn [i v] [i v]) [(create-nucleosome 1 "0" "0")
-                                 (create-nucleosome 0 "0" "0")
-                                 (create-nucleosome 0 "0" "0")
-                                 (create-nucleosome 0 "0" "0")
-                                 (create-nucleosome 0 "0" "0")
-                                 (create-nucleosome 0 "0" "0")
-                                 (create-nucleosome 0 "0" "0")
-                                 (create-nucleosome 0 "0" "0")
-                                 (create-nucleosome 0 "0" "0")
-                                 (create-nucleosome 0 "0" "0")]))
-
-(def rule-m
-  "writes K4 methyl mark"
-  {:class "K4_methyltransferase"
-   :status "RECRUIT"
-   :left "0"
-   :right "A"
-   :affinity 1
-   :abundance 1 })
-
-(def rule-um
-  "erases K4 methyl mark"
-  {:class "K4_demethylase"
-   :status "RECRUIT"
-   :left "A"
-   :right "0"
-   :affinity 1
-   :abundance 1 })
+  (map-indexed (fn [i v] [i v]) [(create-nucleosome 1 0 0)
+                                 (create-nucleosome 0 0 0)
+                                 (create-nucleosome 0 0 0)
+                                 (create-nucleosome 0 0 0)
+                                 (create-nucleosome 0 0 0)
+                                 (create-nucleosome 0 0 0)
+                                 (create-nucleosome 0 0 0)
+                                 (create-nucleosome 0 0 0)
+                                 (create-nucleosome 0 0 0)
+                                 (create-nucleosome 0 0 0)]))
 
 
 (defn expand-rule-sub
   "expand a rule when it includes wildcards"
   [ruleset]
     (if (java.lang.string/.contains (:left ruleset) "*")
-      (map #(clojure.string/join(concat subrule %)) ["A","I","0"]))
+      (map #(clojure.string/join(concat ruleset %)) ["A","I","0"]))
   )
 
 (defn expand-rule
@@ -77,24 +54,35 @@
 (defn copy-chrom
   "copy the marks from input chromatin"
   [chromatin cidx]
-  (nth (clojure.string/split chromtape #"_") cidx)
+;  (nth (clojure.string/split chromtape #"_") cidx)
   )
 
 ;; work on each nucleosome. if applying rule, 
-(second (nth chromtape 1))
 
-	
+(defn find-rule
+  "find all rules with matching left"
+  []
+  ())
+
+(defn select-rule
+  "select a rule among all the matching rules. This steps considers the affinity and abundance"
+  []
+  ())
+
+
+
 (defn change-chrom
   "for changing nucleosome, change. not, copy over"
-  [chrom idx]
-  (let [chrom idx]
-      (cond (= (:head chrom) idx)
-            ( print "change"
-             chrom)
-            :else (print "no"))
-      ))
+  [chrom]
+  (let [chrom chrom]
+      (cond (= (:head chrom) 1)
 
-(cond (= (:head chrom) 1)
+
+            (print "change")
+            :else (print "no"))))
+
+(map #(change-chrom (second (nth chromtape %)))
+     (take 10 (range)))
 
 
 ;; (if idx == changing index, change the nucleosome
