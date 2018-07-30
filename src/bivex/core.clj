@@ -1,6 +1,7 @@
 (ns bivex.core
-  (:require [bivex.rules]))
-;  (:require [bivex.chromatin :as bc] ))
+  (:require [bivex.chromatin :as chromatin])
+  (:require [bivex.rules :as rules]))
+
 
 (defn -main
   "main function to run bivex"
@@ -8,48 +9,48 @@
   ()
   )
 
-(defn create-nucleosome
-  [h, k4, k27]
-  {:head h
-   :k4 k4
-   :k27 k27})
+; apply changes & move head
 
-(def nucleosome (create-nucleosome 0 0 0))
+(defn change-chrom
+  "apply a rule and update the nucleosome, head leaves"
+  [rule nuc]
+  (assoc nuc
+         (keyword (:class rule)) (:right rule)
+         :head 0))
 
-;;(def chromtape (clojure.string/join "_" (repeat 10 nucleosome)))
+(defn drop-nuc
+  [no_idx chromtape]
+  (remove #(= no_idx %) chromtape))
+
+(defn get-the-rest-idx
+  "get the index of the rest of the unchanging nucleosome"
+  [prevnuc_idx nextnuc_idx chromtape]
+  (drop-nuc nextnuc_idx (drop-nuc prevnuc_idx (range (count chromtape)))))
+
+(defn move-head
+  "assign new head position"
+  [nuc_idx]
+  (assoc (second (nth chromatin/chromtape nextnuc_idx)) :head 1))
+
+; we need to keep both the position of the current head and the next head 
+; BE CAREFUL - next head is chosen at random
+(defn apply-rule
+  [chromtape]
+  (let [prevnuc_idx (chromatin/find-idx-with-head chromtape)
+      nextnuc_idx (chromatin/nucleo-idx-next-head chromtape)
+      prevnuc (chromatin/find-nucleosome-with-head chromtape)
+      rule (rules/select-rule prevnuc)
+      prevnuc_new [prevnuc_idx (change-chrom rule prevnuc)] 
+      nextnuc_new [nextnuc_idx (move-head nextnuc_idx)]
+      new_chromtape (concat
+                     (map #(nth chromtape %)
+                          (get-the-rest-idx prevnuc_idx nextnuc_idx chromtape))
+                     (vector nextnuc_new)
+                     (vector prevnuc_new))]
+    (println prevnuc_idx nextnuc_idx prevnuc rule prevnuc_new nextnuc_new)
+  (sort new_chromtape)))
 
 
-;; (def chromtape
-;;   (map-indexed (fn [i v] [i v]) [(create-nucleosome 1 "0" "0") (vec (repeat 9 nucleosome))]))
-
-(def chromtape
-  (map-indexed (fn [i v] [i v]) [(create-nucleosome 1 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)]))
-
-
-(defn expand-rule-sub
-  "expand a rule when it includes wildcards"
-  [ruleset]
-    (if (java.lang.string/.contains (:left ruleset) "*")
-      (map #(clojure.string/join(concat ruleset %)) ["A","I","0"]))
-  )
-
-(defn expand-rule
-  "copying the head position to the expanded set of rules"
-  [ruleset which]
-  (let [x which]
-    (cond
-      (= x "left") (expand-rule-sub ruleset "1")
-      :else (expand-rule-sub ruleset "0"))
-))
 
 (defn copy-chrom
   "copy the marks from input chromatin"
@@ -58,17 +59,6 @@
   )
 
 ;; work on each nucleosome. if applying rule, 
-
-(defn find-rule
-  "find all rules with matching left"
-  []
-  ())
-
-(defn select-rule
-  "select a rule among all the matching rules. This steps considers the affinity and abundance"
-  []
-  ())
-
 
 
 (defn change-chrom
