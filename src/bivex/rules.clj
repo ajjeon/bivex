@@ -50,7 +50,7 @@
 
 (defn select-rule
   "among all the applicable rules, select a rule with the highest prob. If more than one, select one at random"
-  [nuc]
+  [prevnuc]
   (get-max-rule (get-rules-both-marks prevnuc)))
 
 ;; (defn expand-rule-sub
