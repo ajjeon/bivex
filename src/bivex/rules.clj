@@ -14,8 +14,9 @@
             (create-rule "k4" "demethylase" 1 0 1 1)
             (create-rule "k27" "methyltransferase" 0 1 1 1)
             (create-rule "k27" "demethylase" 1 0 1 1)
-            (create-rule "k4" "turnover" 1 0 0.5 0.5)
-            (create-rule "k27" "turnover" 1 0 0.5 0.5)])
+            (create-rule "k4" "turnover" 1 0 0.1 0.1)
+            (create-rule "k27" "turnover" 1 0 0.1 0.1)])
+
 
 (defn find-rules-with-match
   "find rules with matching pattern"

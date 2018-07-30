@@ -5,6 +5,8 @@
   :source-path "src"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [cheshire "5.8.0"]
-                 [com.rpl/specter "1.1.1"]]
+                 [com.rpl/specter "1.1.1"]
+                 [hswick/jutsu "0.1.2"]]
   :main bivex.core
+  :jvm-opts ["--add-modules" "java.xml.bind"]
   )
