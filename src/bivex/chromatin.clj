@@ -8,15 +8,27 @@
 
 (def nucleosome (create-nucleosome 0 0 0))
 
+;; (def chromtape
+;;   (map-indexed (fn [i v] [i v]) [(create-nucleosome 0 0 0)
+;;                                  (create-nucleosome 0 0 0)
+;;                                  (create-nucleosome 0 0 0)
+;;                                  (create-nucleosome 0 0 0)
+;;                                  (create-nucleosome 0 0 0)
+;;                                  (create-nucleosome 1 0 0)
+;;                                  (create-nucleosome 0 0 0)
+;;                                  (create-nucleosome 0 0 0)
+;;                                  (create-nucleosome 0 0 0)
+;;                                  (create-nucleosome 0 0 0)]))
+
 (def chromtape
   (map-indexed (fn [i v] [i v]) [(create-nucleosome 0 0 0)
+                                 (create-nucleosome 0 1 0)
                                  (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 1 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
+                                 (create-nucleosome 0 1 0)
+                                 (create-nucleosome 0 0 1)
+                                 (create-nucleosome 1 0 1)
+                                 (create-nucleosome 0 1 1)
+                                 (create-nucleosome 0 1 1)
                                  (create-nucleosome 0 0 0)
                                  (create-nucleosome 0 0 0)]))
 

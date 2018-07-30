@@ -43,11 +43,20 @@
         :else (print-nucleosome-withouthead nucleosome)))
 
 (defn plot-line
-  [y]
-  (j/graph! "K4 Chart"
-  [{:x (range (count y))
-    :y y
-    :type "scatter"}]))
+  [k4 k27 both]
+  (j/graph! "Valency Chart"
+  [{:x (range (count k4))
+    :y k4
+    :type "scatter"
+    :name "H3K4me3"}
+   {:x (range (count k4))
+    :y k27
+    :type "scatter"
+    :name "H3K27me3"}
+   {:x (range (count k4))
+    :y both
+    :type "scatter"
+    :name "Bivalent"}]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; we need to keep both the position of the current head and the next head 
@@ -67,12 +76,35 @@
                        (vector prevnuc_new))]
     (sort new_chromtape)))
 
+(defn check-valency
+  [new_chromtape]
+  (let [k4total (vec (map #(:k4 (second %)) new_chromtape))
+        k27total (vec (map #(:k27 (second %)) new_chromtape))
+        biv (map #(bit-and %1 %2) k4total k27total)
+        xor (map #(bit-xor %1 %2) k4total k27total)
+        k4mono (map #(bit-and %1 %2) k4total xor)
+        k27mono (map #(bit-and %1 %2) k27total xor)]
+  {:k4mono (vector (apply + k4mono)) :k27mono (vector (apply + k27mono)) :biv (vector (apply + biv))}))
+
 (defn evaluate-chrom
-  [new_chromtape y]
-  (let [y (conj [y] (apply + (map #(:k4 (second %)) new_chromtape)))]
-    (plot-line y)
-    y
-))
+  [chrom_in]
+  (let [new_chromtape (apply-rule (:chromtape chrom_in))
+        y (into (:k4mono chrom_in) (:k4mono (check-valency new_chromtape)))
+        y2 (into (:k27mono chrom_in) (:k27mono (check-valency new_chromtape)))
+        y3 (into (:biv chrom_in) (:biv (check-valency new_chromtape)))]
+    (plot-line y y2 y3) ; plot valency
+;    (plot-gex g) ; plot gene expression outcome
+ ;   (println y y2 y3)
+    (println (clojure.string/join "__" (map print-nucleosome (sort new_chromtape))))
+    {:k4mono y :k27mono y2 :biv y3 :chromtape new_chromtape}))
+
+(def chrom_in {:k4mono [0] :k27mono [0] :biv [0] :chromtape chromatin/chromtape})
+
+;(j/start-jutsu!)
+(take 300 (iterate evaluate-chrom chrom_in))
+
+;; TODO some bug? it seems to stop at some iteration
+;; TODO add gene exp ON/OFF plot
 
 (for [iter (range 10)]
   )
@@ -87,7 +119,7 @@
   [chromtape]
   (let [new_chromtape (apply-rule chromtape)
         y (conj [] (apply + (map #(:k4 (second %)) chromtape)))]
-;    (println (clojure.string/join "__" (map print-nucleosome (sort new_chromtape))))
+    (println (clojure.string/join "__" (map print-nucleosome (sort new_chromtape))))
     (evaluate-chrom new_chromtape y)
     (println y)
     new_chromtape
