@@ -11,9 +11,9 @@
 
 ; TODO: JSON or tab_delim to rules
 (def rules [(create-rule "k4" "methyltransferase" 0 1 1 1)
-            (create-rule "k4" "demethylase" 1 0 1 1)
+            (create-rule "k4" "demethylase" 1 0 0.5 1)
             (create-rule "k27" "methyltransferase" 0 1 1 1)
-            (create-rule "k27" "demethylase" 1 0 1 1)
+            (create-rule "k27" "demethylase" 1 0 0.5 1)
             (create-rule "k4" "turnover" 1 0 0.1 0.1)
             (create-rule "k27" "turnover" 1 0 0.1 0.1)])
 
