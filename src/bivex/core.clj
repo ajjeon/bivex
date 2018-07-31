@@ -26,7 +26,21 @@
 (last (take 5 (iterate evaluate-chrom chrom_in)))
 
 ;;;; cells iterate in parallel. capture snapshot after each iteration
-(def cell_group (repeat 100 chrom_in))
-(def itern 100)
+(def cell_group (repeat 1000 chrom_in))
+(def itern 10)
 
-(plot/plot-cell-genex (map #(last (:genex %)) (pmap #(last (take itern (iterate evaluate-chrom %))) cell_group)) (count cell_group))
+;(plot/plot-cell-genex )
+
+
+(let [t (pmap #(last (take itern (iterate evaluate-chrom %))) cell_group)
+      x (map #(select-keys % [:k4mono :k27mono :biv :genex]) t)
+      t2   (map #(map last (vals %)) x ) ]
+  (plot/plot-cell-all (vec (map #(nth % 0) (vec t2)))
+           (vec (map #(nth % 1) (vec t2)))
+           (vec (map #(nth % 2) (vec t2)))
+           (vec (map #(nth % 3) (vec t2))))
+  (plot/plot-cell-genex (map #(last (:genex %)) t) (count cell_group))
+
+  )
+
+

@@ -51,5 +51,19 @@
   [genex ncells]
   (j/graph! ""
             [{:x [0 1]
-              :y genex
+              :y [(second (first (frequencies genex)))
+                  (second (second (frequencies genex)))
+                  ]
               :type "bar"}]))
+
+(defn plot-cell-all
+  [k4mono k27mono biv genex]
+  (j/graph! "Snapshop of chromatin"
+            [{:x (range (count chromtape))
+              :y (vec (map #(:k4 (second %)) chromtape))
+              :type "bar"
+              :name "H3K4me3"}
+             {:x (range (count chromtape))
+              :y (vec (map #(:k27 (second %)) chromtape))
+              :type "bar"
+              :name "H3K27me3"}]))

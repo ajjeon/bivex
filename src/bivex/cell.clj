@@ -1,4 +1,6 @@
-(ns bivex.cell)
+(ns bivex.cell
+  (:require [bivex.chromatin :as chromatin])
+  (:require [bivex.rules :as rules]))
 
 (defn change-chrom
   "apply a rule and update the nucleosome, head leaves"
@@ -49,6 +51,7 @@
 (defn gene-on?
      "calls gene expression outcome"
      [k4mono k27mono biv]
-     (cond (> k4mono (+ k27mono biv)) [0.5]
+     (cond (> k4mono k27mono;(max k27mono biv)
+              ) [0.5]
            :else [0.1])
      )
