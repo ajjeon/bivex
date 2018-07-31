@@ -52,6 +52,6 @@
      "calls gene expression outcome"
      [k4mono k27mono biv]
      (cond (> k4mono k27mono;(max k27mono biv)
-              ) [0.5]
-           :else [0.1])
+              ) [1]
+           :else [0])
      )
