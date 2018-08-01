@@ -25,19 +25,26 @@
 
 (defn apply-rule
   "apply the selected rule and update the chromtape"
-  [chromtape]
-  (let [prevnuc_idx (chromatin/find-idx-with-head chromtape)
-        nextnuc_idx (chromatin/nucleo-idx-next-head chromtape)
-        prevnuc (chromatin/find-nucleosome-with-head chromtape)
-        rule (rules/select-rule prevnuc)
+  [chrom_in]
+  (let [prevnuc_idx (chromatin/find-idx-with-head (:chromtape chrom_in))
+        nextnuc_idx (chromatin/nucleo-idx-next-head (:chromtape chrom_in))
+        prevnuc (chromatin/find-nucleosome-with-head (:chromtape chrom_in))
+        rule (rules/select-rule prevnuc (:rules chrom_in))
         prevnuc_new [prevnuc_idx (change-chrom rule prevnuc)] 
-        nextnuc_new [nextnuc_idx (move-head chromtape nextnuc_idx)]
+        nextnuc_new [nextnuc_idx (move-head (:chromtape chrom_in) nextnuc_idx)]
         new_chromtape (concat
-                       (map #(nth chromtape %)
-                            (get-the-rest-idx prevnuc_idx nextnuc_idx chromtape))
+                       (map #(nth (:chromtape chrom_in) %)
+                            (get-the-rest-idx prevnuc_idx nextnuc_idx (:chromtape chrom_in)))
                        (vector nextnuc_new)
-                       (vector prevnuc_new))]
-    (sort new_chromtape)))
+                       (vector prevnuc_new))
+        new_rule (rules/update-rules rules/rules prevnuc_new)]
+    {:k4mono (:k4mono chrom_in)
+     :k27mono (:k27mono chrom_in)
+     :biv (:biv chrom_in)
+     :genex (:genex chrom_in)
+     :chromtape (sort new_chromtape)
+     :rules (:rules new_rule)}
+)) ;; TODO
 
 (defn check-valency
   "check valency of the given chromtape"

@@ -25,16 +25,16 @@
 
 (defn get-rules-mark
   "Returns rules with matching histone mark"
-  [mark nuc]
+  [mark nuc rules]
   (let [nucmark ((keyword mark) nuc)
         subrules (find-rules-with-match rules :class mark)]
     (find-rules-with-match subrules :left nucmark)))
 
 (defn get-rules-both-marks
   "Returns rules with matching mark patterns given by the nucleosome"
-  [nuc]
+  [nuc rules]
   (let [methyls (map name (drop 1 (keys nuc)))]
-    (reduce into [] (map #(get-rules-mark % nuc) methyls)) ))
+    (reduce into [] (map #(get-rules-mark % nuc rules) methyls)) ))
 
 (defn get-rule-prob
   "calcualtes the total probability of a rule based on affinity and abundance"
@@ -51,23 +51,12 @@
 
 (defn select-rule
   "among all the applicable rules, select a rule with the highest prob. If more than one, select one at random"
-  [prevnuc]
-  (get-max-rule (get-rules-both-marks prevnuc)))
+  [prevnuc rules]
+  (get-max-rule (get-rules-both-marks prevnuc rules)))
 
-;; (defn expand-rule-sub
-;;   "expand a rule when it includes wildcards"
-;;   [ruleset]
-;;     (if (java.lang.string/.contains (:left ruleset) "*")
-;;       (map #(clojure.string/join(concat ruleset %)) ["A","I","0"]))
-;;   )
-
-;; (defn expand-rule
-;;   "copying the head position to the expanded set of rules"
-;;   [ruleset which]
-;;   (let [x which]
-;;     (cond
-;;       (= x "left") (expand-rule-sub ruleset "1")
-;;       :else (expand-rule-sub ruleset "0"))
-;; ))
-
+(defn update-rules
+  "if methyl marks are present, increase corresponding methyltransferase affinity"
+  [rules prevnuc_new]
+  rules
+  )
 
