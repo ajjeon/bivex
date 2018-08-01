@@ -24,6 +24,7 @@
   (assoc (second (nth chromtape nextnuc_idx)) :head 1))
 
 (defn apply-rule
+  "apply the selected rule and update the chromtape"
   [chromtape]
   (let [prevnuc_idx (chromatin/find-idx-with-head chromtape)
         nextnuc_idx (chromatin/nucleo-idx-next-head chromtape)
@@ -39,6 +40,7 @@
     (sort new_chromtape)))
 
 (defn check-valency
+  "check valency of the given chromtape"
   [new_chromtape]
   (let [k4total (vec (map #(:k4 (second %)) new_chromtape))
         k27total (vec (map #(:k27 (second %)) new_chromtape))
@@ -55,3 +57,16 @@
               ) [1]
            :else [0])
      )
+
+(defn call-valency-per-cell
+  "call valency state per cell, based on the largest value."
+  [chrom_in]
+  (let [k4 {:k4mono (last (:k4mono chrom_in))}
+        k27 {:k27mono (last (:k27mono chrom_in))} 
+        biv {:biv (last (:biv chrom_in))}            
+        genex (last (:genex chrom_in))
+        markmap (merge k4 k27 biv)
+        maxmark (cond (every? zero? (vals markmap)) "NA"
+                      (not (apply distinct? (vals markmap))) "NA"
+                      :else  (name (key (apply max-key val markmap))))]
+    {:cellvalency maxmark :genex genex}))
