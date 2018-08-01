@@ -14,11 +14,7 @@ Tested Mac OS X and Ubuntu.
 In a single-run
 Command line argument processing not yet implemented;
 
-For a quick look,
-
-'''
-lein run
-'''
+For a quick look, `lein run`
 
 ## License
 Not yet. Eventually under an open source 
