@@ -7,7 +7,7 @@ The basic unit of operation in Bivex simulates the process of gene regulation by
 ## Requirement
 
 Bivex is built on Clojure 1.8.0., Leiningen 2.7.1, and Java 1.8.
-Tested Mac OS X and Ubuntu.
+Tested on Mac OS X and Ubuntu.
 
 ## Usage
 
