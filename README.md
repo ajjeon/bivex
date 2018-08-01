@@ -18,9 +18,9 @@ For a quick look, `lein run`
 
 
 
-![Image of single mode example] 
-(doc/example-single-mode.png)
+![alt text](doc/example-single-mode.png)
 
+![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
 
 
 ## License
