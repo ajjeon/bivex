@@ -15,8 +15,14 @@ In a single-run
 Command line argument processing not yet implemented;
 
 For a quick look, `lein run`
+### Single-mode
 
 ![alt text](doc/example-single-mode.png)
+
+### Bulk-mode
+
+![alt text](doc/example-single-mode.png)
+
 
 ## License
 Not yet. Eventually under an open source 
