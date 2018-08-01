@@ -16,6 +16,14 @@ Command line argument processing not yet implemented;
 
 For a quick look, `lein run`
 
+![Image of single mode example]
+(doc/example_single_mode.png)
+
+![Image of bulk mode example
+(doc/example_bulk_mode.png)
+
+
+
 ## License
 Not yet. Eventually under an open source 
 
