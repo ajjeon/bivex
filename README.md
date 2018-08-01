@@ -16,12 +16,7 @@ Command line argument processing not yet implemented;
 
 For a quick look, `lein run`
 
-
-
 ![alt text](doc/example-single-mode.png)
-
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
-
 
 ## License
 Not yet. Eventually under an open source 
