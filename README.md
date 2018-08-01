@@ -1,16 +1,19 @@
-# bivex
+# Bivex, Stochastic simulator for chromatin mark patterns and gene expression
 
-A clojure library built
+Bivex simulates
 
 ## Usage
 
-FIXME
+Command line argument processing not yet implemented;
+
+For a quick look,
+'''bash
+lein run
+'''
 
 ## License
+Not yet. Eventually under an open source 
 
-Copyright © 2018 FIXME
+Copyright © 2018 Ah-Jung Jeon
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
-=======
->>>>>>> c8194d802d2460375c4ded8cd8a547396ebe89f5
+
