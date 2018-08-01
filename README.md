@@ -21,7 +21,7 @@ For a quick look, `lein run`
 
 ### Bulk-mode
 
-![alt text](doc/example-single-mode.png)
+![alt text](doc/example-bulk-mode.png)
 
 
 ## License
