@@ -54,9 +54,35 @@
   [prevnuc rules]
   (get-max-rule (get-rules-both-marks prevnuc rules)))
 
-(defn update-rules
+(defn update-rules-given-marks
   "if methyl marks are present, increase corresponding methyltransferase affinity"
   [rules prevnuc_new]
   rules
+  )
+
+(defn get-key
+  [midx]
+  (cond (= midx 1) :k4
+        :else :k27))
+
+
+
+;;;;;;;;TODO
+
+(defn update-rules-discourage-biv
+  "based on the new nucleosome, discourage oppositng methyltransferase"
+  [chromtape rules nextnuc_new]
+  (let [x (map #(get (second nextnuc_new) %) [:k4 :k27])
+        xtest (= (apply + (x)) 1)
+        ])
+  (cond xtest (filter #(and (= (:action %) "methyltransferase")
+                            (= (:class %)
+                               (name (get-key (+ (.indexOf x 1) 1))))) rules)
+        :else rules))
+
+
+(defn discourage-biv
+  [rules givenm]
+  
   )
 
