@@ -20,12 +20,13 @@
     (plot/plot-bar new_chromtape) ; snapshot of valency
     (Thread/sleep 100)
     (println (clojure.string/join "__" (map plot/print-nucleosome (sort new_chromtape)))) ; trace iteration
+;    (println new_chrom_in)
     {:k4mono y
      :k27mono y2
      :biv y3
      :genex genex
      :chromtape new_chromtape
-     :rules (:rules chrom_in)}  ;;; UPDATE RULES HERE
+     :rules (:rules new_chrom_in)}  ;;; UPDATE RULES HERE
 ))
 
 (defn evaluate-chrom-bulk
@@ -42,7 +43,7 @@
      :biv y3
      :genex genex
      :chromtape new_chromtape
-     :rules (:rules chrom_in)}  ;;; UPDATE RULES HERE
+     :rules (:rules new_chrom_in)}  ;;; UPDATE RULES HERE
 ))
 
 ;;;; cells iterate in parallel. capture snapshot after each iteration

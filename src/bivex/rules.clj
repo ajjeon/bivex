@@ -11,11 +11,11 @@
 
 ; TODO: JSON or tab_delim to rules
 (def rules [(create-rule "k4" "methyltransferase" 0 1 1 1)
-            (create-rule "k4" "demethylase" 1 0 0.5 1)
+            (create-rule "k4" "demethylase" 1 0 1 1)
             (create-rule "k27" "methyltransferase" 0 1 1 1)
-            (create-rule "k27" "demethylase" 1 0 0.5 1)
-            (create-rule "k4" "turnover" 1 0 0.1 0.1)
-            (create-rule "k27" "turnover" 1 0 0.1 0.1)])
+            (create-rule "k27" "demethylase" 1 0 1 1)
+            (create-rule "k4" "turnover" 1 0 1 1)
+            (create-rule "k27" "turnover" 1 0 1 1)])
 
 
 (defn find-rules-with-match
@@ -41,53 +41,60 @@
   [r]
   (* (:affinity r) (:abundance r)))
 
-(defn get-max-rule
-  "get a rule with highest total probability and if more than one, select one at random"
+;; (defn get-max-rule ;; OBSOLETE
+;;   "get a rule with highest total probability and if more than one, select one at random"
+;;   [rules]
+;;   (let [max-prob (apply max (map get-rule-prob rules))
+;;         max-prob-idx (map #(= max-prob %) (map get-rule-prob rules))
+;;         max-rule (remove nil? (map #(when %2 %1) rules max-prob-idx))]
+;;     (rand-nth max-rule)))
+
+
+(defn select-weighted-rule
   [rules]
-  (let [max-prob (apply max (map get-rule-prob rules))
-        max-prob-idx (map #(= max-prob %) (map get-rule-prob rules))
-        max-rule (remove nil? (map #(when %2 %1) rules max-prob-idx))]
-    (rand-nth max-rule)))
+  (rand-nth (vec (concat (flatten (map #(repeat (* (* (:affinity %) (:abundance %)) 100) %) rules))))))
 
 (defn select-rule
   "among all the applicable rules, select a rule with the highest prob. If more than one, select one at random"
-  [prevnuc rules]
-  (get-max-rule (get-rules-both-marks prevnuc rules)))
+  [nuc rules]
+  (select-weighted-rule (get-rules-both-marks nuc rules)))
 
-(defn update-rules-given-marks
-  "if methyl marks are present, increase corresponding methyltransferase affinity"
-  [rules prevnuc_new]
-  rules
-  )
+;; (defn update-rules-given-marks
+;;   "if methyl marks are present, increase corresponding methyltransferase affinity"
+;;   [rules prevnuc_new]
+;;   rules
+;;   )
 
 (defn get-key
   [midx]
   (cond (= midx 1) :k4
         :else :k27))
 
+(defn discourage-biv
+  [givenrules givenm]
+  (let [changem (cond (= givenm "k4") "k27" :else "k4")
+        drule (into {} (filter #(and (= (:action %) "methyltransferase")
+                                      (= (:class %) changem)) givenrules)) 
+        srule (map #(into {} %) (filter #(or (not= (:action %) "methyltransferase")
+                                              (not= (:class %) changem)) rules))
+        new_drule (assoc (assoc drule :affinity 0.01) :abundance 0.01)
+        ]
+    (concat [new_drule] srule)
+    ))
+
+
+(defn update-rules-discourage-biv
+  "based on the new nucleosome, discourage oppositng methyltransferase"
+  [givenrules nextnuc_new]
+  (let [x (map #(get (second nextnuc_new) %) [:k4 :k27])
+        xtest (= (apply + x) 1)]
+    (cond xtest (discourage-biv givenrules (name (get-key (+ (.indexOf x 1) 1))))
+          :else rules)))
+
 (defn update-rules
-  [chromtape rules]
-  )
-
-
-
-
-
-;;;;;;;;TODO
-; (defn update-rules-discourage-biv
-;;   "based on the new nucleosome, discourage oppositng methyltransferase"
-;;   [chromtape rules nextnuc_new]
-;;   (let [x (map #(get (second nextnuc_new) %) [:k4 :k27])
-;;         xtest (= (apply + (x)) 1)
-;;         ])
-;;   (cond xtest (filter #(and (= (:action %) "methyltransferase")
-;;                             (= (:class %)
-;;                                (name (get-key (+ (.indexOf x 1) 1))))) rules)
-;;         :else rules))
-
-
-;; (defn discourage-biv
-;;   [rules givenm]
+  [rules nextnuc_new]
+  (update-rules-discourage-biv rules nextnuc_new)
   
-;;   )
+)
+
 
