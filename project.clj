@@ -8,5 +8,5 @@
                  [com.rpl/specter "1.1.1"]
                  [hswick/jutsu "0.1.2"]]
   :main bivex.core
-;  :jvm-opts ["--add-modules" "java.xml.bind"]
+  :jvm-opts ["--add-modules" "java.xml.bind"]
   )
