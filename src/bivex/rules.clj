@@ -65,24 +65,27 @@
   (cond (= midx 1) :k4
         :else :k27))
 
+(defn update-rules
+  [chromtape rules]
+  )
 
 
 ;;;;;;;;TODO
 
-(defn update-rules-discourage-biv
-  "based on the new nucleosome, discourage oppositng methyltransferase"
-  [chromtape rules nextnuc_new]
-  (let [x (map #(get (second nextnuc_new) %) [:k4 :k27])
-        xtest (= (apply + (x)) 1)
-        ])
-  (cond xtest (filter #(and (= (:action %) "methyltransferase")
-                            (= (:class %)
-                               (name (get-key (+ (.indexOf x 1) 1))))) rules)
-        :else rules))
+;; (defn update-rules-discourage-biv
+;;   "based on the new nucleosome, discourage oppositng methyltransferase"
+;;   [chromtape rules nextnuc_new]
+;;   (let [x (map #(get (second nextnuc_new) %) [:k4 :k27])
+;;         xtest (= (apply + (x)) 1)
+;;         ])
+;;   (cond xtest (filter #(and (= (:action %) "methyltransferase")
+;;                             (= (:class %)
+;;                                (name (get-key (+ (.indexOf x 1) 1))))) rules)
+;;         :else rules))
 
 
-(defn discourage-biv
-  [rules givenm]
+;; (defn discourage-biv
+;;   [rules givenm]
   
-  )
+;;   )
 
