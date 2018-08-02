@@ -37,7 +37,7 @@
                             (get-the-rest-idx prevnuc_idx nextnuc_idx (:chromtape chrom_in)))
                        (vector nextnuc_new)
                        (vector prevnuc_new))
-        new_rule (rules/update-rules rules/rules nextnuc_new)]
+        new_rule (rules/update-rules rules/rules nextnuc_new prevnuc_new)]
 ;    (println nextnuc_new)
     {:k4mono (:k4mono chrom_in)
      :k27mono (:k27mono chrom_in)

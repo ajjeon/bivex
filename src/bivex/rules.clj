@@ -12,7 +12,7 @@
 ; TODO: JSON or tab_delim to rules
 (def rules [(create-rule "k4" "methyltransferase" 0 1 1 1)
 ;            (create-rule "k4" "demethylase" 1 0 1 1)
-            (create-rule "k27" "methyltransferase" 0 1 1 1)
+            (create-rule "k27" "methyltransferase" 0 1 0.2              1)
  ;           (create-rule "k27" "demethylase" 1 0 1 1)
             (create-rule "k4" "turnover" 1 0 0.5 0.5)
             (create-rule "k27" "turnover" 1 0 0.5 0.5)
@@ -108,17 +108,16 @@
           :else rules)))
 
 (defn update-rules-recruitment
-  "based on the new nucleosome, encourage recruitment by existing mark"
-  [givenrules nextnuc_new]
-  (let [updatedrules (cond (= (:k4 (second nextnuc_new)) 1) (rule-recruitment givenrules "k4")
+  "based on the previous nucleosome, encourage recruitment by existing mark"
+  [givenrules prevnuc_new]
+  (let [updatedrules (cond (= (:k4 (second prevnuc_new)) 1) (rule-recruitment givenrules "k4")
                           :else givenrules)]
-    (cond (= (:k27 (second nextnuc_new)) 1) (rule-recruitment updatedrules "k27")
+    (cond (= (:k27 (second prevnuc_new)) 1) (rule-recruitment updatedrules "k27")
                           :else updatedrules)
     ))
 
 (defn update-rules
-  [rules nextnuc_new]
-  (let [urules (update-rules-discourage-biv rules nextnuc_new)]
-    (update-rules-recruitment urules nextnuc_new)
-    ))
+  [prevrules nextnuc_new prevnuc_new]
+  (let [urules (update-rules-recruitment rules prevnuc_new)] ;; after every iteration, same default rules get read in
+    (update-rules-discourage-biv urules nextnuc_new)))
 
