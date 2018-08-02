@@ -37,14 +37,14 @@
                             (get-the-rest-idx prevnuc_idx nextnuc_idx (:chromtape chrom_in)))
                        (vector nextnuc_new)
                        (vector prevnuc_new))
-        new_rule (rules/update-rules rules/rules prevnuc_new)]
+        new_rule (rules/update-rules rules/rules nextnuc_new)]
     {:k4mono (:k4mono chrom_in)
      :k27mono (:k27mono chrom_in)
      :biv (:biv chrom_in)
      :genex (:genex chrom_in)
      :chromtape (sort new_chromtape)
-     :rules (:rules new_rule)}
-)) ;; TODO
+     :rules new_rule}
+    ))
 
 (defn check-valency
   "check valency of the given chromtape"
