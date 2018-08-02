@@ -38,6 +38,7 @@
                        (vector nextnuc_new)
                        (vector prevnuc_new))
         new_rule (rules/update-rules rules/rules nextnuc_new)]
+;    (println nextnuc_new)
     {:k4mono (:k4mono chrom_in)
      :k27mono (:k27mono chrom_in)
      :biv (:biv chrom_in)

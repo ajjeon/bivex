@@ -11,11 +11,16 @@
 
 ; TODO: JSON or tab_delim to rules
 (def rules [(create-rule "k4" "methyltransferase" 0 1 1 1)
-            (create-rule "k4" "demethylase" 1 0 1 1)
+;            (create-rule "k4" "demethylase" 1 0 1 1)
             (create-rule "k27" "methyltransferase" 0 1 1 1)
-            (create-rule "k27" "demethylase" 1 0 1 1)
-            (create-rule "k4" "turnover" 1 0 1 1)
-            (create-rule "k27" "turnover" 1 0 1 1)])
+ ;           (create-rule "k27" "demethylase" 1 0 1 1)
+            (create-rule "k4" "turnover" 1 0 0.5 0.5)
+            (create-rule "k27" "turnover" 1 0 0.5 0.5)
+            (create-rule "k4" "maintenance" 1 1 1 1)
+            (create-rule "k27" "maintenance" 1 1 1 1)
+            (create-rule "k4" "maintenance" 0 0 1 1)
+            (create-rule "k27" "maintenance" 0 0 1 1)
+])
 
 
 (defn find-rules-with-match
@@ -82,6 +87,17 @@
     (concat [new_drule] srule)
     ))
 
+(defn rule-recruitment
+  "mimics the recruitment by an existing methyl mark"
+  [givenrules changem]
+  (let [drule (into {} (filter #(and (= (:action %) "methyltransferase")
+                                      (= (:class %) changem)) givenrules)) 
+        srule (map #(into {} %) (filter #(or (not= (:action %) "methyltransferase")
+                                              (not= (:class %) changem)) givenrules))
+        new_drule (assoc (assoc drule :affinity 2) :abundance 2)
+        ]
+    (concat [new_drule] srule)
+    ))
 
 (defn update-rules-discourage-biv
   "based on the new nucleosome, discourage oppositng methyltransferase"
@@ -91,10 +107,18 @@
     (cond xtest (discourage-biv givenrules (name (get-key (+ (.indexOf x 1) 1))))
           :else rules)))
 
+(defn update-rules-recruitment
+  "based on the new nucleosome, encourage recruitment by existing mark"
+  [givenrules nextnuc_new]
+  (let [updatedrules (cond (= (:k4 (second nextnuc_new)) 1) (rule-recruitment givenrules "k4")
+                          :else givenrules)]
+    (cond (= (:k27 (second nextnuc_new)) 1) (rule-recruitment updatedrules "k27")
+                          :else updatedrules)
+    ))
+
 (defn update-rules
   [rules nextnuc_new]
-  (update-rules-discourage-biv rules nextnuc_new)
-  
-)
-
+  (let [urules (update-rules-discourage-biv rules nextnuc_new)]
+    (update-rules-recruitment urules nextnuc_new)
+    ))
 

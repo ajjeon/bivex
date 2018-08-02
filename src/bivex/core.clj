@@ -12,7 +12,7 @@
   (Thread/sleep 500)
   (println "Opening the browser for graphs...") 
   (println "::: START SINGLE-CELL SIMULATION :::") 
-  (eval/run-one chrom_in 100)
+  (eval/run-one chrom_in 1000)
   (println "::: DONE SINGLE-CELL SIMULATION :::")
   (println "::: START BULK SIMULATION :::") 
   (eval/run-bulk chrom_in 100 1000)

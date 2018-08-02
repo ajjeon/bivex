@@ -17,7 +17,7 @@
         y3 (into (:biv chrom_in) (:biv (cell/check-valency new_chromtape)))
         genex (into (:genex chrom_in) (cell/gene-on? (last y) (last y2) (last y3)))]
     (plot/plot-line y y2 y3 genex) ; trace valency and gene expression
-    (plot/plot-bar new_chromtape) ; snapshot of valency
+ ;   (plot/plot-bar new_chromtape) ; snapshot of valency
     (Thread/sleep 100)
     (println (clojure.string/join "__" (map plot/print-nucleosome (sort new_chromtape)))) ; trace iteration
 ;    (println new_chrom_in)
@@ -26,7 +26,7 @@
      :biv y3
      :genex genex
      :chromtape new_chromtape
-     :rules (:rules new_chrom_in)}  ;;; UPDATE RULES HERE
+     :rules (:rules new_chrom_in)}
 ))
 
 (defn evaluate-chrom-bulk
@@ -43,7 +43,7 @@
      :biv y3
      :genex genex
      :chromtape new_chromtape
-     :rules (:rules new_chrom_in)}  ;;; UPDATE RULES HERE
+     :rules (:rules new_chrom_in)}
 ))
 
 ;;;; cells iterate in parallel. capture snapshot after each iteration
