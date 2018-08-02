@@ -70,9 +70,9 @@
   )
 
 
-;;;;;;;;TODO
 
-;; (defn update-rules-discourage-biv
+;;;;;;;;TODO
+; (defn update-rules-discourage-biv
 ;;   "based on the new nucleosome, discourage oppositng methyltransferase"
 ;;   [chromtape rules nextnuc_new]
 ;;   (let [x (map #(get (second nextnuc_new) %) [:k4 :k27])
