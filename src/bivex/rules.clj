@@ -1,26 +1,34 @@
-(ns bivex.rules)
+(ns bivex.rules
+  (:require [clojure.data.csv :as csv])
+  (:require [clojure.java.io :as io])
+  (:require [bivex.chromatin :as chromatin]))
 
-(defn create-rule
-  [class action left right affinity abundance]
-  (hash-map :class class,
-            :action action,
-            :left left,
-            :right right,
-            :affinity affinity,
-            :abundance abundance))
+(defn read-in-rules [rfile]
+  (vec (map #(chromatin/update-values % read-string)
+                     (chromatin/csv-data->maps
+                      (csv/read-csv
+                       (io/reader rfile))))))
 
-; TODO: JSON or tab_delim to rules
-(def rules [(create-rule "k4" "methyltransferase" 0 1 1 1)
-;            (create-rule "k4" "demethylase" 1 0 1 1)
-            (create-rule "k27" "methyltransferase" 0 1 0.2 0.2)
- ;           (create-rule "k27" "demethylase" 1 0 1 1)
-            (create-rule "k4" "turnover" 1 0 0.5 0.5)
-            (create-rule "k27" "turnover" 1 0 0.5 0.5)
-            (create-rule "k4" "maintenance" 1 1 1 1)
-            (create-rule "k27" "maintenance" 1 1 1 1)
-            (create-rule "k4" "maintenance" 0 0 1 1)
-            (create-rule "k27" "maintenance" 0 0 1 1)
-])
+;; (defn create-rule
+;;   [class action left right affinity abundance]
+;;   (hash-map :class class,
+;;             :action action,
+;;             :left left,
+;;             :right right,
+;;             :affinity affinity,
+;;             :abundance abundance))
+
+;; (def rules [(create-rule "k4" "methyltransferase" 0 1 1 1)
+;; ;            (create-rule "k4" "demethylase" 1 0 1 1)
+;;             (create-rule "k27" "methyltransferase" 0 1 0.2 0.2)
+;;  ;           (create-rule "k27" "demethylase" 1 0 1 1)
+;;             (create-rule "k4" "turnover" 1 0 0.5 0.5)
+;;             (create-rule "k27" "turnover" 1 0 0.5 0.5)
+;;             (create-rule "k4" "maintenance" 1 1 1 1)
+;;             (create-rule "k27" "maintenance" 1 1 1 1)
+;;             (create-rule "k4" "maintenance" 0 0 1 1)
+;;             (create-rule "k27" "maintenance" 0 0 1 1)
+;; ])
 
 
 (defn find-rules-with-match

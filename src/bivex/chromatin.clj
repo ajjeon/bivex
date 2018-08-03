@@ -1,37 +1,30 @@
-(ns bivex.chromatin)
+(ns bivex.chromatin
+  (:require [clojure.data.csv :as csv])
+  (:require [clojure.java.io :as io]))
 
-(defn create-nucleosome
-  [h, k4, k27]
-  {:head h
-   :k4 k4
-   :k27 k27})
+;; (defn create-nucleosome
+;;   [h, k4, k27]
+;;   {:head h
+;;    :k4 k4
+;;    :k27 k27})
 
-(def nucleosome (create-nucleosome 0 0 0))
+;(def nucleosome (create-nucleosome 0 0 0))
+
+(defn csv-data->maps [csv-data]
+  (map zipmap
+       (->> (first csv-data) ;; First row is the header
+            (map keyword) ;; Drop if you want string keys instead
+            repeat)
+       (rest csv-data)))
+
+(defn update-values [m f & args]
+  (into {} (for [[k v] m] [k (apply f v args)])))
 
 (def chromtape
-  (map-indexed (fn [i v] [i v]) [(create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 1 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)
-                                 (create-nucleosome 0 0 0)]))
-
-;; (def chromtape
-;;   (map-indexed (fn [i v] [i v]) [(create-nucleosome 0 0 0)
-;;                                  (create-nucleosome 0 1 0)
-;;                                  (create-nucleosome 0 0 0)
-;;                                  (create-nucleosome 0 1 0)
-;;                                  (create-nucleosome 0 0 1)
-;;                                  (create-nucleosome 1 0 1)
-;;                                  (create-nucleosome 0 1 1)
-;;                                  (create-nucleosome 0 1 1)
-;;                                  (create-nucleosome 0 0 0)
-;;                                  (create-nucleosome 0 0 0)]))
-
+  (map-indexed (fn [i v] [i v]) (vec (map #(update-values % read-string)
+                                          (csv-data->maps
+                                           (csv/read-csv
+                                            (io/reader "resources/chromtape.csv"))))))) 
 
 (defn find-nucleosome-with-head*
   "Find a nucleosome with head. Returns both idx and item"
