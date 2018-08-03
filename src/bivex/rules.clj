@@ -84,7 +84,7 @@
         :else :k27))
 
 (defn discourage-biv
-  [givenrules givenm]
+  [rules givenrules givenm]
   (let [changem (cond (= givenm "k4") "k27" :else "k4")
         drule (into {} (filter #(and (= (:action %) "methyltransferase")
                                       (= (:class %) changem)) givenrules)) 
@@ -109,10 +109,10 @@
 
 (defn update-rules-discourage-biv
   "based on the new nucleosome, discourage oppositng methyltransferase"
-  [givenrules nextnuc_new]
+  [rules givenrules nextnuc_new]
   (let [x (map #(get (second nextnuc_new) %) [:k4 :k27])
         xtest (= (apply + x) 1)]
-    (cond xtest (discourage-biv givenrules (name (get-key (+ (.indexOf x 1) 1))))
+    (cond xtest (discourage-biv rules givenrules (name (get-key (+ (.indexOf x 1) 1))))
           :else rules)))
 
 (defn update-rules-recruitment
@@ -125,7 +125,7 @@
     ))
 
 (defn update-rules
-  [prevrules nextnuc_new prevnuc_new]
+  [rules prevrules nextnuc_new prevnuc_new]
   (let [urules (update-rules-recruitment rules prevnuc_new)] ;; after every iteration, same default rules get read in
-    (update-rules-discourage-biv urules nextnuc_new)))
+    (update-rules-discourage-biv rules urules nextnuc_new)))
 
