@@ -20,11 +20,15 @@
 (defn update-values [m f & args]
   (into {} (for [[k v] m] [k (apply f v args)])))
 
-(def chromtape
-  (map-indexed (fn [i v] [i v]) (vec (map #(update-values % read-string)
+(defn read-in-chromatin*
+  [cfile]
+  (vec (map #(update-values % read-string)
                                           (csv-data->maps
                                            (csv/read-csv
-                                            (io/reader "resources/chromtape.csv"))))))) 
+                                            (io/reader cfile))))))
+(defn read-in-chromatin
+  [cfile]
+  (map-indexed (fn [i v] [i v]) (read-in-chromatin cfile)))
 
 (defn find-nucleosome-with-head*
   "Find a nucleosome with head. Returns both idx and item"
