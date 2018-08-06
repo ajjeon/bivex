@@ -3,9 +3,25 @@
   (:require [bivex.rules :as rules])
   (:require [bivex.plot :as plot])
   (:require [bivex.cell :as cell])
+  (:require [bivex.files :as files])
   (:require [jutsu.core :as j])
   (:gen-class))
 
+(defn generate_chrom_in [rfile cfile]
+  (let [chromtape (files/read-in-chromatin cfile)
+        k4mono (:k4mono (cell/check-valency chromtape))
+        k27mono (:k27mono (cell/check-valency chromtape))
+        biv (:biv (cell/check-valency chromtape))
+        rules (files/read-in-file rfile)]
+;    (print k4mono k27mono biv)
+    {:k4mono k4mono
+     :k27mono k27mono
+     :biv biv
+     :genex (cell/gene-on? (first k4mono) (first k27mono) (first biv))
+     :chromtape chromtape
+     :rules rules
+     :orules rules}
+    ))
 
 (defn evaluate-chrom-one
   "evaluate chromtape for one cell"
@@ -26,7 +42,8 @@
      :biv y3
      :genex genex
      :chromtape new_chromtape
-     :rules (:rules new_chrom_in)}
+     :rules (:rules new_chrom_in)
+     :orules (:orules chrom_in)}
 ))
 
 (defn evaluate-chrom-bulk
@@ -53,6 +70,15 @@
   (last (take itern (iterate evaluate-chrom-one chrom_in)))
 )
 
+(defn run-with-change
+  [beforeiter afteriter]
+  (let [beforerun (run-one
+                   (generate_chrom_in @rules/default-rules-file @chromatin/chromatin-file)
+                     beforeiter)]
+      (reset! rules/default-rules-file @rules/new-rules-file)
+      (run-one (assoc beforerun :rules (files/read-in-file @rules/new-rules-file)) afteriter) 
+      ))
+
 (defn run-bulk
   "run multiple cells through iterations"
   [chrom_in ncells itern]
@@ -69,4 +95,3 @@
     (plot/plot-cell-sum k4mono k27mono biv genex ncells)
     (plot/plot-bar-sum t)
 ))
-

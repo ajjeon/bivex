@@ -2,6 +2,7 @@
   (:require [bivex.files :as files]))
 
 (def default-rules-file (atom "resources/rules.csv"))
+(def new-rules-file (atom "resources/new-rules.csv"))
 
 (defn find-rules-with-match
   "find rules with matching pattern"

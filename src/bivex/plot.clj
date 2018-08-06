@@ -37,7 +37,7 @@
     :type "scatter"
     :name "Bivalent"}
    {:x (range (count k4))
-    :y (map #(+ % 9) genex)
+    :y (map #(+ % 11) genex)
     :mode "lines"
     :type "scatter"
     :line {:shape "hvh"}
@@ -84,7 +84,7 @@
               :type "bar"
               :name "Bivalent"}
              {:x (range (count k4mono))
-              :y (map #(+ % 9) genex)
+              :y (map #(+ % 11) genex)
               :mode "lines+markers"
               :type "scatter"
               :line {:shape "hvh"}

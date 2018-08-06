@@ -13,10 +13,12 @@ Tested on Mac OS X and Ubuntu.
 
 ## Usage
 
-use "-c" to indicate the initial chromtape file
-use "-r" to indicate the initial rules file
+use `-c` to indicate the initial chromtape file
+use `-r` to indicate the initial rules file
+use `-ncells` to indicate the number of cells
+use `-niters` to indicate the number of iterations
 
-Refer to resources/chromtape.csv and resources/rules.csv for the format
+Refer to `resources/chromtape.csv` and `resources/rules.csv` for the format
 
 For a quick look, `lein run -c resources/chromtape.csv -r resources/rules.csv`
 
