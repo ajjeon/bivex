@@ -1,10 +1,7 @@
-pom.xml
-*jar
-/classes/
-/.lein-deps-sum
+.classpath
+.project
+.settings/
+/target/
 /.lein-failures
 /.lein-repl-history
 /.lein-env
-/checkouts
-/.env
-/target
