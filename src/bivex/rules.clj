@@ -1,35 +1,7 @@
 (ns bivex.rules
-  (:require [clojure.data.csv :as csv])
-  (:require [clojure.java.io :as io])
-  (:require [bivex.chromatin :as chromatin]))
+  (:require [bivex.files :as files]))
 
-(defn read-in-rules [rfile]
-  (vec (map #(chromatin/update-values % read-string)
-                     (chromatin/csv-data->maps
-                      (csv/read-csv
-                       (io/reader rfile))))))
-
-;; (defn create-rule
-;;   [class action left right affinity abundance]
-;;   (hash-map :class class,
-;;             :action action,
-;;             :left left,
-;;             :right right,
-;;             :affinity affinity,
-;;             :abundance abundance))
-
-;; (def rules [(create-rule "k4" "methyltransferase" 0 1 1 1)
-;; ;            (create-rule "k4" "demethylase" 1 0 1 1)
-;;             (create-rule "k27" "methyltransferase" 0 1 0.2 0.2)
-;;  ;           (create-rule "k27" "demethylase" 1 0 1 1)
-;;             (create-rule "k4" "turnover" 1 0 0.5 0.5)
-;;             (create-rule "k27" "turnover" 1 0 0.5 0.5)
-;;             (create-rule "k4" "maintenance" 1 1 1 1)
-;;             (create-rule "k27" "maintenance" 1 1 1 1)
-;;             (create-rule "k4" "maintenance" 0 0 1 1)
-;;             (create-rule "k27" "maintenance" 0 0 1 1)
-;; ])
-
+(def default-rules-file (atom "resources/rules.csv"))
 
 (defn find-rules-with-match
   "find rules with matching pattern"
@@ -117,15 +89,18 @@
 
 (defn update-rules-recruitment
   "based on the previous nucleosome, encourage recruitment by existing mark"
-  [givenrules prevnuc_new]
-  (let [updatedrules (cond (= (:k4 (second prevnuc_new)) 1) (rule-recruitment givenrules "k4")
-                          :else givenrules)]
-    (cond (= (:k27 (second prevnuc_new)) 1) (rule-recruitment updatedrules "k27")
-                          :else updatedrules)
+  [rules prevnuc_new]
+  (let [updatedrules (cond (= (:k4 (second prevnuc_new)) 1)
+                           (rule-recruitment rules "k4")
+                           :else rules)]
+    (cond (= (:k27 (second prevnuc_new)) 1)
+          (rule-recruitment updatedrules "k27")
+          :else rules)
     ))
 
 (defn update-rules
-  [rules prevrules nextnuc_new prevnuc_new]
-  (let [urules (update-rules-recruitment rules prevnuc_new)] ;; after every iteration, same default rules get read in
+  [nextnuc_new prevnuc_new]
+  (let [rules (files/read-in-file @default-rules-file)
+        urules (update-rules-recruitment rules prevnuc_new)] ;; after every iteration, same default rules get read in
     (update-rules-discourage-biv rules urules nextnuc_new)))
 

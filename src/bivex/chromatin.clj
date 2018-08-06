@@ -1,34 +1,7 @@
 (ns bivex.chromatin
-  (:require [clojure.data.csv :as csv])
-  (:require [clojure.java.io :as io]))
+  (:require [bivex.files :as files]))
 
-;; (defn create-nucleosome
-;;   [h, k4, k27]
-;;   {:head h
-;;    :k4 k4
-;;    :k27 k27})
-
-;(def nucleosome (create-nucleosome 0 0 0))
-
-(defn csv-data->maps [csv-data]
-  (map zipmap
-       (->> (first csv-data) ;; First row is the header
-            (map keyword) ;; Drop if you want string keys instead
-            repeat)
-       (rest csv-data)))
-
-(defn update-values [m f & args]
-  (into {} (for [[k v] m] [k (apply f v args)])))
-
-(defn read-in-chromatin*
-  [cfile]
-  (vec (map #(update-values % read-string)
-                                          (csv-data->maps
-                                           (csv/read-csv
-                                            (io/reader cfile))))))
-(defn read-in-chromatin
-  [cfile]
-  (map-indexed (fn [i v] [i v]) (read-in-chromatin cfile)))
+(def chromatin-file (atom "resources/chromtape.csv"))
 
 (defn find-nucleosome-with-head*
   "Find a nucleosome with head. Returns both idx and item"
