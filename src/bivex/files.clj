@@ -30,7 +30,7 @@
   [cfile]
   (map-indexed (fn [i v] [i v]) (read-in-file cfile)))
 
-(read-in-file "resources/rules.csv")
-(read-in-chromatin "resources/chromtape.csv")
+;; (read-in-file "resources/rules.csv")
+;; (read-in-chromatin "resources/chromtape.csv")
 
 

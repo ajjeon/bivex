@@ -9,9 +9,6 @@
   (:gen-class))
 
 
-;(def default-rules-file (atom "resources/rules.csv"))
-;(def chromatin-file (atom "resources/chromtape.csv"))
-
 (defn generate_chrom_in [rfile cfile]
   (let [chromtape (files/read-in-chromatin cfile)
         k4mono (:k4mono (cell/check-valency chromtape))
@@ -45,8 +42,6 @@
     (when (:help options)
       (println banner)
       (System/exit 0))
-
-    (println ) 
 
     (j/start-jutsu!)
     (Thread/sleep 500)
