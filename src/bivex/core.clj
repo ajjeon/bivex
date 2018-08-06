@@ -93,5 +93,3 @@
     (println "::: DONE BULK SIMULATION :::")
     )
 
-
-

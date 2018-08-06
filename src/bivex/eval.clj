@@ -23,7 +23,10 @@
      :orules rules}
     ))
 
-(defn evaluate-chrom-one
+;;;;;;;; TODO clean up evaluate-chrom-one and bulk. the only difference is plotting.
+;;;;;;; extract out the common part into another fucntion.
+
+(defn evaluate-chrom-one 
   "evaluate chromtape for one cell"
   [chrom_in]
   (let [new_chrom_in (cell/apply-rule chrom_in)
@@ -60,7 +63,8 @@
      :biv y3
      :genex genex
      :chromtape new_chromtape
-     :rules (:rules new_chrom_in)}
+     :rules (:rules new_chrom_in)
+     :orules (:orules chrom_in)}
 ))
 
 ;;;; cells iterate in parallel. capture snapshot after each iteration
@@ -70,14 +74,41 @@
   (last (take itern (iterate evaluate-chrom-one chrom_in)))
 )
 
-(defn run-with-change
+(defn run-one-with-change
   [beforeiter afteriter]
-  (let [beforerun (run-one
+  (let [new-rules (files/read-in-file @rules/new-rules-file)
+        beforerun (run-one
                    (generate_chrom_in @rules/default-rules-file @chromatin/chromatin-file)
                      beforeiter)]
-      (reset! rules/default-rules-file @rules/new-rules-file)
-      (run-one (assoc beforerun :rules (files/read-in-file @rules/new-rules-file)) afteriter) 
+;      (reset! rules/default-rules-file @rules/new-rules-file)
+    (run-one (assoc
+              (assoc beforerun :rules new-rules)
+              :orules new-rules) afteriter)
       ))
+
+;;;;;;;;;;;;;;;; TODO
+
+(defn run-many
+  "run one cell through iterations"
+  [chrom_in itern]
+  (last (take itern (iterate evaluate-chrom-bulk chrom_in)))
+)
+
+(defn run-many-with-change
+  [beforeiter afteriter]
+  (let [new-rules (files/read-in-file @rules/new-rules-file)
+        beforerun (run-many
+                   (generate_chrom_in @rules/default-rules-file @chromatin/chromatin-file)
+                     beforeiter)]
+;      (reset! rules/default-rules-file @rules/new-rules-file)
+    (run-many (assoc
+              (assoc beforerun :rules new-rules)
+              :orules new-rules) afteriter)
+      ))
+
+;;;;;;;;;;;;;;;;; TODO: implementing bulk
+
+;;;;;; each cell undergoes "run with change" 
 
 (defn run-bulk
   "run multiple cells through iterations"
