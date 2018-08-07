@@ -139,7 +139,9 @@
 (defn when-switch?*
   "find the last occurence of ON gene expression and add 1 to indicate when the stable switch to repression happened"
   [cvector]
-  (+ (string/last-index-of (string/join (map str cvector)) "1") 1))
+  (cond (reduce identical? (map boolean cvector)) 0
+        :else (+ (string/last-index-of (string/join (map str cvector)) "1") 1))
+  )
 
 (defn when-switch?
   [genex]
@@ -149,8 +151,7 @@
 
 (defn when-switch-plot
   [ncells allgenex beforeiter]
-  (let [switches (vec (map #(when-switch? (:genex %)) allgenex))
-        ]
+  (let [switches (vec (map #(when-switch? (:genex %)) allgenex))]
     (j/graph! "When stable switch happened in each cell"
               [{:x (range ncells)
                 :y switches

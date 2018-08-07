@@ -103,6 +103,7 @@
         ]
 ;    (println allgenex)
 ;    (println (apply + k4mono) (apply + k27mono) (apply + biv) (apply + genex))
+;    (print allgenex)
     (plot/plot-cell-all k4mono k27mono biv genex)
     (plot/plot-cell-sum k4mono k27mono biv genex ncells)
     (plot/plot-bar-sum t)
