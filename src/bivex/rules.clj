@@ -102,5 +102,5 @@
 (defn update-rules
   [orules nextnuc_new prevnuc_new]
   (let [urules (update-rules-recruitment orules prevnuc_new)] ;; after every iteration, same default rules get read in
-    (update-rules-discourage-biv rules urules nextnuc_new)))
+    (update-rules-discourage-biv orules urules nextnuc_new)))
 

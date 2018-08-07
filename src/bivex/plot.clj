@@ -1,5 +1,6 @@
 (ns bivex.plot
-  (:require [jutsu.core :as j]))
+  (:require [jutsu.core :as j])
+  (:require [clojure.string :as string]))
 
 (defn print-nucleosome-withouthead
   "prints nucleosomes that are not currently being read"
@@ -135,4 +136,29 @@
                 :type "scatter"
                 :name "H3K27me3"}])))
 
+(defn when-switch?*
+  "find the last occurence of ON gene expression and add 1 to indicate when the stable switch to repression happened"
+  [cvector]
+  (+ (string/last-index-of (string/join (map str cvector)) "1") 1))
 
+(defn when-switch?
+  [genex]
+  (cond (= (last genex) 0) (when-switch?* genex)
+        :else 0)
+  )
+
+(defn when-switch-plot
+  [ncells allgenex beforeiter]
+  (let [switches (vec (map #(when-switch? (:genex %)) allgenex))
+        ]
+    (j/graph! "When stable switch happened in each cell"
+              [{:x (range ncells)
+                :y switches
+                :type "scatter"
+                :name "switch"}
+               {:x (range ncells)
+                :y (repeat ncells (+ beforeiter 1)) 
+                :mode "lines"
+                :type "scatter"
+                :name "EZH2i added"}])
+    ))
