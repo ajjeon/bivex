@@ -161,6 +161,7 @@
 (defn when-switch-plot
   [ncells allgenex beforeiter]
   (let [switches (vec (map #(when-switch? (:genex %) beforeiter) allgenex))]
+    (println switches)
     (j/graph! "When stable switch happened in each cell"
               [{:x (range ncells)
                 :y switches

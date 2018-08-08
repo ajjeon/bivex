@@ -48,7 +48,7 @@
   (plot/plot-line (:k4mono new_chrom_in) (:k27mono new_chrom_in) (:biv new_chrom_in) (:genex new_chrom_in)) ; trace valency and gene expression
 ;   (plot/plot-bar new_chromtape) ; snapshot of valency
   (Thread/sleep 100)
-  (println (clojure.string/join "__" (map plot/print-nucleosome (sort (:chromtape new_chrom_in))))) ; trace iteration
+;  (println (clojure.string/join "__" (map plot/print-nucleosome (sort (:chromtape new_chrom_in))))) ; trace iteration
                                         ;    (println new_new_chrom_in)
   new_chrom_in
     ))
