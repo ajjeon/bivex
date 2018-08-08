@@ -136,29 +136,39 @@
                 :type "scatter"
                 :name "H3K27me3"}])))
 
+;; when-switch function should first see if before "afteriter" the genex value was zero. if yes, check when the switch to on happened after "afteriter". if not, zero
+;;; if switch to on never happened after "afteriter", zero.
+
 (defn when-switch?*
-  "find the last occurence of ON gene expression and add 1 to indicate when the stable switch to repression happened"
-  [cvector]
-  (cond (reduce identical? (map boolean cvector)) 0
-        :else (+ (string/last-index-of (string/join (map str cvector)) "1") 1))
+  "find the last occurence of ON gene expression and add 1 to indicate when the stable switch to activation happened"
+  [cvector beforeiter] 
+  (cond (reduce identical? cvector) (+ beforeiter 1) 
+        :else (+ (string/index-of (string/join (map str cvector)) "11111") (+ beforeiter 1))) ; find the first occurence of "stable" -- at least 5 consecutive iters -- reactivation
   )
 
 (defn when-switch?
-  [genex]
-  (cond (= (last genex) 0) (when-switch?* genex)
-        :else 0)
-  )
+  [genex beforeiter]
+  (let [sub-genex (subvec genex beforeiter)]
+    (cond (and (= (nth genex beforeiter) 0) (= (last genex) 1))
+          (cond (some #(= % 1) sub-genex) (when-switch?* sub-genex beforeiter)
+          :else nil)
+          :else nil)
+    
+;; (cond (= (last sub-genex) 1) (when-switch?* sub-genex)
+;;           :else 0)
+    ))
 
 (defn when-switch-plot
   [ncells allgenex beforeiter]
-  (let [switches (vec (map #(when-switch? (:genex %)) allgenex))]
+  (let [switches (vec (map #(when-switch? (:genex %) beforeiter) allgenex))]
     (j/graph! "When stable switch happened in each cell"
               [{:x (range ncells)
                 :y switches
+                :mode "markers"
                 :type "scatter"
                 :name "switch"}
                {:x (range ncells)
-                :y (repeat ncells (+ beforeiter 1)) 
+                :y (repeat ncells beforeiter) 
                 :mode "lines"
                 :type "scatter"
                 :name "EZH2i added"}])

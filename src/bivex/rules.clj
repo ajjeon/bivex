@@ -63,7 +63,7 @@
                                       (= (:class %) changem)) givenrules)) 
         srule (map #(into {} %) (filter #(or (not= (:action %) "methyltransferase")
                                               (not= (:class %) changem)) rules))
-        new_drule (assoc (assoc drule :affinity 0.01) :abundance 0.01)
+        new_drule (assoc (assoc drule :affinity 0.5) :abundance 0.5)
         ]
     (concat [new_drule] srule)
     ))
@@ -75,7 +75,7 @@
                                       (= (:class %) changem)) givenrules)) 
         srule (map #(into {} %) (filter #(or (not= (:action %) "methyltransferase")
                                               (not= (:class %) changem)) givenrules))
-        new_drule (assoc (assoc drule :affinity 2) :abundance 2)
+        new_drule (assoc (assoc drule :affinity 1.5) :abundance 1.5)
         ]
     (concat [new_drule] srule)
     ))

@@ -62,7 +62,7 @@
 (defn gene-on?
      "calls gene expression outcome"
      [k4mono k27mono biv]
-     (cond (> k4mono k27mono;(max k27mono biv)
+     (cond (> k4mono (+ k27mono 1)          ;(max k27mono biv)
               ) [1]
            :else [0])
      )
