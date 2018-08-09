@@ -185,3 +185,14 @@
 ;;             [{:y (vec (map #(last (:genex %)) allgenex))
 ;;               :type "box"}])
 ;;   )
+
+;; (j/graph! "Gene expression levels"
+;;           [{:y k4monotx
+;;             :type "box"
+;;             :name "K4mono"}
+;;            {:y k27monotx
+;;             :type "box"
+;;             :name "K27mono"}
+;;            {:y bivtx
+;;             :type "box"
+;;             :name "Biv"}])
