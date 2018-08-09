@@ -7,18 +7,20 @@
   (:require [jutsu.core :as j])
   (:gen-class))
 
-(defn generate_chrom_in [rfile cfile]
+(defn generate_chrom_in [rfile cfile trate]
   (let [chromtape (files/read-in-chromatin cfile)
         k4mono (:k4mono (cell/check-valency chromtape))
         k27mono (:k27mono (cell/check-valency chromtape))
         biv (:biv (cell/check-valency chromtape))
-        rules (files/read-in-file rfile)]
-;    (print k4mono k27mono biv)
+        rules (files/read-in-file rfile)
+        ]
+;    (println trate)
     {:k4mono k4mono
      :k27mono k27mono
      :biv biv
-     :genex (cell/gene-on? (first k4mono) (first k27mono) (first biv))
+     :genex (cell/gene-on? (first k4mono) (first k27mono) (first biv) trate)
      :chromtape chromtape
+     :trate trate
      :rules rules
      :orules rules}
     ))
@@ -31,14 +33,15 @@
         y (into (:k4mono chrom_in) (:k4mono (cell/check-valency new_chromtape)))
         y2 (into (:k27mono chrom_in) (:k27mono (cell/check-valency new_chromtape)))
         y3 (into (:biv chrom_in) (:biv (cell/check-valency new_chromtape)))
-        genex (into (:genex chrom_in) (cell/gene-on? (last y) (last y2) (last y3)))]
+        genex (into (:genex chrom_in) (cell/gene-on? (last y) (last y2) (last y3) (:trate chrom_in)))]
     {:k4mono y
      :k27mono y2
      :biv y3
      :genex genex
      :chromtape new_chromtape
      :rules (:rules new_chrom_in)
-     :orules (:orules chrom_in)}
+     :orules (:orules chrom_in)
+     :trate (:trate chrom_in)}
 ))
 
 (defn evaluate-chrom-with-plot
@@ -91,7 +94,7 @@
 (defn run-bulk
   "run multiple cells through iterations"
   [chrom_in ncells beforeiter afteriter]
-  (let [cell_group (repeat ncells chrom_in)
+  (let [cell_group (map #(generate_chrom_in @rules/default-rules-file @chromatin/chromatin-file %) (vec (repeatedly ncells #(+ (rand-int 9) 1))))
         t (pmap #(run-many-with-change % beforeiter afteriter) cell_group)
         x (map #(select-keys % [:k4mono :k27mono :biv :genex]) t)
         t2 (map #(map last (vals %)) x)
@@ -103,10 +106,11 @@
         ]
 ;    (println allgenex)
 ;    (println (apply + k4mono) (apply + k27mono) (apply + biv) (apply + genex))
-;    (print allgenex)
-    (plot/plot-cell-all k4mono k27mono biv genex)
-    (plot/plot-cell-sum k4mono k27mono biv genex ncells)
-    (plot/plot-bar-sum t)
-    (plot/when-switch-plot ncells allgenex beforeiter)
+    ;; (plot/plot-cell-all k4mono k27mono biv genex)
+    ;; (plot/plot-cell-sum k4mono k27mono biv genex ncells)
+    ;; (plot/plot-bar-sum t)
+    ;; (plot/when-switch-plot ncells allgenex beforeiter)
+    (println (map #(last (:genex %)) allgenex)) 
+;    (plot/genex-box-plot allgenex)
     ))
 

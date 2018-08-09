@@ -38,7 +38,7 @@
     :type "scatter"
     :name "Bivalent"}
    {:x (range (count k4))
-    :y (map #(+ % 11) genex)
+    :y (map #(cond (zero? %) 11 :else 12) genex)
     :mode "lines"
     :type "scatter"
     :line {:shape "hvh"}
@@ -85,7 +85,7 @@
               :type "bar"
               :name "Bivalent"}
              {:x (range (count k4mono))
-              :y (map #(+ % 11) genex)
+              :y (map #(cond (zero? %) 11 :else 12) genex)
               :mode "lines+markers"
               :type "scatter"
               :line {:shape "hvh"}
@@ -108,7 +108,7 @@
               :type "bar"
               :name "Bivalent"}
              {:x [0]
-              :y [(format "%3f" (* (float (/ (apply + genex) ncells)) 100))]
+              :y [(format "%3f" (* (float (/ (apply + (map #(cond (zero? %) 1 :else 0) genex)) ncells)) 100))]
               :type "bar"
               :name "Gene exp"}]))
 
@@ -144,16 +144,20 @@
   [cvector beforeiter] 
   (cond (reduce identical? cvector) (+ beforeiter 1) 
         :else (+ (string/index-of (string/join (map str cvector)) "11111") (+ beforeiter 1))) ; find the first occurence of "stable" -- at least 5 consecutive iters -- reactivation
+
   )
 
 (defn when-switch?
   [genex beforeiter]
-  (let [sub-genex (subvec genex beforeiter)]
-    (cond (and (= (nth genex beforeiter) 0) (= (last genex) 1))
-          (cond (some #(= % 1) sub-genex) (when-switch?* sub-genex beforeiter)
+  (let [sub-genex (vec (map #(cond (zero? %) 0 :else 1) genex))
+        sub-genex-pre (subvec sub-genex beforeiter)]
+    ;; (println sub-genex)
+    ;; (println sub-genex-pre)
+    (cond (and (= (nth sub-genex beforeiter) 0) (= (last sub-genex) 1))
+          (cond (some #(= % 1) sub-genex-pre) (when-switch?* sub-genex-pre beforeiter)
           :else nil)
           :else nil)
-    
+     
 ;; (cond (= (last sub-genex) 1) (when-switch?* sub-genex)
 ;;           :else 0)
     ))
@@ -161,7 +165,7 @@
 (defn when-switch-plot
   [ncells allgenex beforeiter]
   (let [switches (vec (map #(when-switch? (:genex %) beforeiter) allgenex))]
-    (println switches)
+;    (println switches)
     (j/graph! "When stable switch happened in each cell"
               [{:x (range ncells)
                 :y switches
@@ -174,3 +178,10 @@
                 :type "scatter"
                 :name "EZH2i added"}])
     ))
+
+;; (defn genex-box-plot
+;;   [allgenex]
+;;   (j/graph! "Gene expression levels"
+;;             [{:y (vec (map #(last (:genex %)) allgenex))
+;;               :type "box"}])
+;;   )
