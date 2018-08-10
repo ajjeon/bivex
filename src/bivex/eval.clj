@@ -110,7 +110,7 @@
     ;; (plot/plot-cell-sum k4mono k27mono biv genex ncells)
     ;; (plot/plot-bar-sum t)
     ;; (plot/when-switch-plot ncells allgenex beforeiter)
-    (println (map #(last (:genex %)) allgenex)) 
+    (map #(last (:genex %)) allgenex) 
 ;    (plot/genex-box-plot allgenex)
     ))
 
