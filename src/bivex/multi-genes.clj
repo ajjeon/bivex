@@ -3,7 +3,7 @@
   [idx]
   (println idx)
   (spit (clojure.string/join ["output/K27mono-" idx ".txt"])
-        (vec (eval/run-bulk (eval/generate_chrom_in @rules/default-rules-file @chromatin/chromatin-file (+ (rand-int 9) 1)) 100 200 199)))
+        (vec (eval/run-bulk (eval/generate_chrom_in @rules/default-rules-file @chromatin/chromatin-file (+ (rand-int 9) 1)) 1000 500 499)))
   )
 
 (pmap run-multi-genes (range 100))
