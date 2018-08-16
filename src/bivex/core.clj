@@ -51,4 +51,3 @@
       )
     (println "::: DONE BULK SIMULATION :::")
     )
-

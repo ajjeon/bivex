@@ -7,6 +7,8 @@
   (:require [jutsu.core :as j])
   (:gen-class))
 
+(def save-chromtape (atom [[]]))
+
 (defn generate_chrom_in [rfile cfile trate]
   (let [chromtape (files/read-in-chromatin cfile)
         k4mono (:k4mono (cell/check-valency chromtape))
@@ -24,6 +26,31 @@
      :rules rules
      :orules rules}
     ))
+
+;; empty gets 0
+;; k4mono gets 1
+;; k27mono gets 2
+;; biv gets 3
+
+(defn nucleo-state
+  [nucleosome]
+  (let [k4mono (:k4 nucleosome)
+        k27mono (cond (= (:k27 nucleosome) 1) 2 :else 0)
+        biv (+ k4mono k27mono)]
+    (max k4mono k27mono biv)
+    ))
+
+(defn chromtape-state
+  [chrom_in]
+  (vec (->> chrom_in
+              (:chromtape)
+              (map #(nucleo-state (second %))))))
+
+
+(defn update-save-chromtape
+  [chrom_in]
+  (reset! save-chromtape (merge @save-chromtape (chromtape-state chrom_in))))
+
 
 (defn evaluate-chrom
   "applies a selected rule and update the chrom_in"
@@ -48,12 +75,14 @@
   "plots updated chrom_in. only applies to single-cell iterations"
   [chrom_in]
   (let [new_chrom_in (evaluate-chrom chrom_in)]
-  (plot/plot-line (:k4mono new_chrom_in) (:k27mono new_chrom_in) (:biv new_chrom_in) (:genex new_chrom_in)) ; trace valency and gene expression
-;   (plot/plot-bar new_chromtape) ; snapshot of valency
-  (Thread/sleep 100)
+    (plot/plot-line (:k4mono new_chrom_in) (:k27mono new_chrom_in) (:biv new_chrom_in) (:genex new_chrom_in)) ; trace valency and gene expression
+    (plot/plot-bar (:chromtape new_chrom_in))     ; snapshot of valency
+    (Thread/sleep 100)
 ;  (println (clojure.string/join "__" (map plot/print-nucleosome (sort (:chromtape new_chrom_in))))) ; trace iteration
                                         ;    (println new_new_chrom_in)
-  new_chrom_in
+    (update-save-chromtape new_chrom_in)
+
+    new_chrom_in
     ))
 
 ;;;; for single-cell simulations

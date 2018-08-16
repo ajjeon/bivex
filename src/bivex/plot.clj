@@ -196,3 +196,7 @@
 ;;            {:y bivtx
 ;;             :type "box"
 ;;             :name "Biv"}])
+
+(defn plot-nucleo-mat
+  [save-chromtape]
+  (j/graph! "Mark evolution" [{:z save-chromtape :type "heatmap"}]))

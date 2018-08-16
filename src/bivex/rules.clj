@@ -69,13 +69,13 @@
     ))
 
 (defn rule-recruitment
-  "mimics the recruitment by an existing methyl mark"
-  [givenrules changem]
-  (let [drule (into {} (filter #(and (= (:action %) "methyltransferase")
+  "mimics the recruitment by an existing methyl mark or an empty mark"
+  [givenrules changem type]
+  (let [drule (into {} (filter #(and (= (:action %) type)
                                       (= (:class %) changem)) givenrules)) 
-        srule (map #(into {} %) (filter #(or (not= (:action %) "methyltransferase")
+        srule (map #(into {} %) (filter #(or (not= (:action %) type)
                                               (not= (:class %) changem)) givenrules))
-        new_drule (assoc (assoc drule :affinity 1.5) :abundance 1.5)
+        new_drule (assoc (assoc drule :affinity 4) :abundance 4)
         ]
     (concat [new_drule] srule)
     ))
@@ -91,12 +91,12 @@
 (defn update-rules-recruitment
   "based on the previous nucleosome, encourage recruitment by existing mark"
   [rules prevnuc_new]
-  (let [updatedrules (cond (= (:k4 (second prevnuc_new)) 1)
-                           (rule-recruitment rules "k4")
-                           :else rules)]
-    (cond (= (:k27 (second prevnuc_new)) 1)
-          (rule-recruitment updatedrules "k27")
-          :else rules)
+  (let [updatedrules (cond (zero? (:k4 (second prevnuc_new)))
+                           (rule-recruitment rules "k4" "turnover")
+                           :else (rule-recruitment rules "k4" "methyltransferase"))]
+    (cond (zero? (:k27 (second prevnuc_new)))
+          (rule-recruitment updatedrules "k27" "turnover")
+          :else           (rule-recruitment updatedrules "k27" "methyltransferase"))
     ))
 
 (defn update-rules
