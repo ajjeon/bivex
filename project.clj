@@ -6,8 +6,7 @@
 ;                 [com.rpl/specter "1.1.1"]
                  [hswick/jutsu "0.1.2"]
                  [org.clojure/data.csv "0.1.4"]
-                 [org.clojure/tools.cli "0.3.1"]
-                 ]
+                 [org.clojure/tools.cli "0.3.1"]]
   :main bivex.core
 ;  :jvm-opts ["--add-modules" "java.xml.bind"]
   )

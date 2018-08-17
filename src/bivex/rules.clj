@@ -75,7 +75,7 @@
                                       (= (:class %) changem)) givenrules)) 
         srule (map #(into {} %) (filter #(or (not= (:action %) type)
                                               (not= (:class %) changem)) givenrules))
-        new_drule (assoc (assoc drule :affinity 4) :abundance 4)
+        new_drule (assoc (assoc drule :affinity 5) :abundance 5)
         ]
     (concat [new_drule] srule)
     ))
