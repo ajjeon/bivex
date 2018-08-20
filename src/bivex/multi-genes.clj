@@ -1,4 +1,3 @@
-
 (defn run-multi-genes
   [idx]
   (println idx)

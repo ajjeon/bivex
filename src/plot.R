@@ -16,3 +16,6 @@ image(matrix(as.vector(unlist(processed)),nrow=100),
 
 axis(1, at=seq(0,1, length=11), labels=seq(0,100,10))
 axis(2, at=seq(0,1, length=11), labels=seq(0,5000,500))
+ 
+
+x <- read.table("output/test.txt")
