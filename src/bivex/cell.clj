@@ -15,39 +15,92 @@
 
 (defn get-the-rest-idx
   "get the index of the rest of the unchanging nucleosome"
-  [prevnuc_idx nextnuc_idx chromtape]
-  (drop-nuc nextnuc_idx (drop-nuc prevnuc_idx (range (count chromtape)))))
+  [prevnuc_idx nextnuc_idx nuchead_idx chromtape]
+  (drop-nuc nuchead_idx (drop-nuc nextnuc_idx (drop-nuc prevnuc_idx (range (count chromtape))))))
 
 (defn move-head
   "assign new head position"
   [chromtape nextnuc_idx]
   (assoc (second (nth chromtape nextnuc_idx)) :head 1))
 
+(defn remove-head
+  "remove head for a given nucleosome"
+  [nuc]
+  (assoc nuc :head 0))
+
 (defn apply-rule
   "apply the selected rule and update the chromtape"
   [chrom_in]
-  (let [prevnuc_all (chromatin/find-nucleosome-with-head (:chromtape chrom_in))
+  (let [nuchead_all (chromatin/find-nucleosome-with-head (:chromtape chrom_in))
+        rule (rules/select-rule (second nuchead_all) (:rules chrom_in))
+        prevnuc_all (chromatin/turnover? rule nuchead_all (:chromtape chrom_in))
         prevnuc_idx (first prevnuc_all)
         prevnuc (second prevnuc_all)
-        nextnuc_idx (chromatin/nucleo-idx-next-head (:chromtape chrom_in) prevnuc_idx)
-        rule (rules/select-rule prevnuc (:rules chrom_in))
+        next_chromtape (drop prevnuc_idx (:chromtape chrom_in))
+        nextnuc_idx (chromatin/nucleo-idx-next-head next_chromtape (first nuchead_all))
+        nextnuc_new [nextnuc_idx (move-head next_chromtape nextnuc_idx)]
         prevnuc_new [prevnuc_idx (change-chrom rule prevnuc)]
-        nextnuc_new [nextnuc_idx (move-head (:chromtape chrom_in) nextnuc_idx)]
-        new_chromtape (concat
-                       (map #(nth (:chromtape chrom_in) %)
-                            (get-the-rest-idx prevnuc_idx nextnuc_idx (:chromtape chrom_in)))
-                       (vector nextnuc_new)
-                       (vector prevnuc_new))
-        new_rule (rules/update-rules (:orules chrom_in) nextnuc_new prevnuc_new)]
-                                        ;    (println nextnuc_new)
+        nuchead_new [(first nuchead_all) (remove-head (second nuchead_all))] 
+        ;; new_chromtape (concat
+        ;;                (map #(nth (:chromtape chrom_in) %)
+        ;;                     (get-the-rest-idx prevnuc_idx nextnuc_idx (first nuchead_new) (:chromtape chrom_in)))
+        ;;                (vector nextnuc_new)
+        ;;                (vector prevnuc_new)
+        ;;                (vector nuchead_new))
+;;        new_chromtape (remove nil? new_chromtape)
+       new_rule (rules/update-rules (:orules chrom_in) nextnuc_new prevnuc_new)
+        ]
+    (println prevnuc_idx nextnuc_idx (first nuchead_new))
     {:k4mono (:k4mono chrom_in)
      :k27mono (:k27mono chrom_in)
      :biv (:biv chrom_in)
      :genex (:genex chrom_in)
-     :chromtape (sort new_chromtape)
+;;     :chromtape (sort new_chromtape)
      :rules new_rule
      :orules (:orules chrom_in)}
-    ))
+    
+    )
+  )
+
+
+
+
+ (let [nuchead_all (chromatin/find-nucleosome-with-head (:chromtape chrom_in))
+       rule (rules/select-rule (second nuchead_all) (:rules chrom_in))
+       prevnuc_all (chromatin/turnover? rule nuchead_all (:chromtape chrom_in))
+       prevnuc_idx (first prevnuc_all)
+       prevnuc (second prevnuc_all)
+       next_chromtape (remove #(= prevnuc_all %) (:chromtape chrom_in))
+       nextnuc_idx (chromatin/nucleo-idx-next-head next_chromtape (first nuchead_all))
+       nextnuc_new [nextnuc_idx (move-head next_chromtape nextnuc_idx)]
+       prevnuc_new [prevnuc_idx (change-chrom rule prevnuc)]
+       nuchead_new [(first nuchead_all) (remove-head (second nuchead_all))] 
+       new_chromtape (concat
+                      (map #(nth (:chromtape chrom_in) %)
+                           (get-the-rest-idx prevnuc_idx nextnuc_idx (first nuchead_new) (:chromtape chrom_in)))
+                       (vector nextnuc_new)
+                       (vector prevnuc_new)
+                       (vector nuchead_new))
+       new_chromtape (remove nil? new_chromtape)
+      new_rule (rules/update-rules (:orules chrom_in) nextnuc_new prevnuc_new)
+        ]
+;   (println (sort new_chromtape))
+   (println nextnuc_new)
+   (println prevnuc_new)
+   (println nuchead_new)
+   
+;;     {:k4mono (:k4mono chrom_in)
+;;      :k27mono (:k27mono chrom_in)
+;;      :biv (:biv chrom_in)
+;;      :genex (:genex chrom_in)
+;; ;;     :chromtape (sort new_chromtape)
+;;      :rules new_rule
+;;      :orules (:orules chrom_in)}
+    
+    )
+
+
+
 
 (defn check-valency
   "check valency of the given chromtape"

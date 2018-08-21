@@ -3,6 +3,13 @@
 
 (def chromatin-file (atom "resources/chromtape.csv"))
 
+(defn turnover?
+  [rule nuchead_all chromtape]
+  "if the rule is turnover, change nucleosome to a randomly marked nucleosome. If not, nil"
+  (cond (= (:action rule) "turnover")
+        (rand-nth (filter #(= ((keyword (:class rule)) (second %)) 1) (remove #(= (first nuchead_all) (first %)) chromtape)))
+        :else nil))
+
 (defn find-nucleosome-with-head
   "Find a nucleosome with head. Returns both idx and item"
   [chromtape]

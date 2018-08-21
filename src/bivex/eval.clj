@@ -79,7 +79,6 @@
 ;  (println (clojure.string/join "__" (map plot/print-nucleosome (sort (:chromtape new_chrom_in))))) ; trace iteration
                                         ;    (println new_new_chrom_in)
     (update-save-chromtape new_chrom_in)
-
     new_chrom_in
     ))
 
@@ -87,7 +86,7 @@
 (defn run-one
   "run one cell through iterations"
   [chrom_in itern]
-  (last (take itern (iterate evaluate-chrom-with-plot chrom_in)))
+   (last (take itern (iterate evaluate-chrom-with-plot chrom_in)))
 )
 
 (defn run-one-with-change

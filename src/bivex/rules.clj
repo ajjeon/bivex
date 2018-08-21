@@ -92,10 +92,10 @@
   "based on the previous nucleosome, encourage recruitment by existing mark"
   [rules prevnuc_new]
   (let [updatedrules (cond (zero? (:k4 (second prevnuc_new)))
-                           (rule-recruitment rules "k4" "turnover")
+                           (rule-recruitment rules "k4" "demethylase")
                            :else (rule-recruitment rules "k4" "methyltransferase"))]
     (cond (zero? (:k27 (second prevnuc_new)))
-          (rule-recruitment updatedrules "k27" "turnover")
+          (rule-recruitment updatedrules "k27" "demethylase")
           :else           (rule-recruitment updatedrules "k27" "methyltransferase"))
     ))
 
@@ -103,4 +103,3 @@
   [orules nextnuc_new prevnuc_new]
   (let [urules (update-rules-recruitment orules prevnuc_new)] ;; after every iteration, same default rules get read in
     (update-rules-discourage-biv orules urules nextnuc_new)))
-
