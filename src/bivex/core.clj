@@ -8,6 +8,8 @@
   (:require [bivex.files :as files])
   (:gen-class))
 
+(def chrom_in (eval/generate_chrom_in @rules/default-rules-file @chromatin/chromatin-file (+ (rand-int 9) 1))) 
+
 (defn -main
   "" ;lein run -b "resources/chromtape.csv" -a "resources/rules.csv" -c 10 -t 1000 -r "resources/new-rules.csv" -n 10
   [& args]

@@ -18,6 +18,10 @@
   (cond (= (:head (second nucleosome)) 1) (print-nucleosome-withhead nucleosome)
         :else (print-nucleosome-withouthead nucleosome)))
 
+(defn print-chromtape
+  [chromtape]
+  (println (clojure.string/join "__" (map print-nucleosome (sort chromtape)))))
+
 (defn plot-line
   "plots the traceable valency chart"
   [k4 k27 both genex]
