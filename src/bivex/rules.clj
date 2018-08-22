@@ -70,14 +70,15 @@
     ))
 
 (defn rule-recruitment
-  "mimics the recruitment by an existing methyl mark or an empty mark"
+  "mimics the recruitment by an existing methyl mark or an empty mark" ;;;;TODO
   [givenrules changem type]
   (let [drule (into {} (filter #(and (= (:action %) type)
                                       (= (:class %) changem)) givenrules)) 
         srule (map #(into {} %) (filter #(or (not= (:action %) type)
                                               (not= (:class %) changem)) givenrules))
-        new_drule (assoc (assoc drule :affinity 5) :abundance 5)
+        new_drule (assoc (assoc drule :affinity 20) :abundance 20)
         ]
+;    (println drule)
     (concat [new_drule] srule)
     ))
 
