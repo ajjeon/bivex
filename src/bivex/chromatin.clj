@@ -3,15 +3,6 @@
 
 (def chromatin-file (atom "resources/chromtape.csv"))
 
-(defn turnover-match
-  [rule nuc_h_idx nuc_n_idx chromtape]
-  (let [match_nuc (filter
-                   #(= ((keyword (:class rule)) (second %)) 1)
-                   (remove #(or (= nuc_h_idx (first %)) (= nuc_n_idx (first %))) chromtape))
-        ]
-    (cond (empty? match_nuc) nil :else (rand-nth match_nuc))))
-
-
 (defn find-nucleosome-with-head
   "Find a nucleosome with head. Returns both idx and item"
   [chromtape]
@@ -50,5 +41,16 @@
                     (nucleo-idx-next-head-loop chromtape i)
                     :else
                     (nucleo-idx-next-head-linear chromtape i))))
+
+(defn nucleo-get-rest
+  [nuc_idx chromtape]
+  (let [minus (cond (zero? nuc_idx) 0
+                    :else (dec nuc_idx))
+        m_range (range 0 minus)
+        plus (cond (= nuc_idx (count chromtape)) (count chromtape)
+                   :else (inc nuc_idx))
+        p_range (range (inc plus) (inc (count chromtape)))
+        all_range (vec (concat m_range p_range))]
+    (map #(nth chromtape %) all_range)))
 
 

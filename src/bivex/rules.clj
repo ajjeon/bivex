@@ -1,5 +1,6 @@
 (ns bivex.rules
-  (:require [bivex.files :as files]))
+  (:require [bivex.files :as files])
+  (:require [bivex.chromatin :as chromatin]))
 
 (def default-rules-file (atom "resources/rules.csv"))
 (def new-rules-file (atom "resources/new-rules.csv"))
@@ -100,6 +101,8 @@
     ))
 
 (defn update-rules
-  [orules nextnuc_new prevnuc_new]
-  (let [urules (update-rules-recruitment orules prevnuc_new)] ;; after every iteration, same default rules get read in
+  [new_chromtape orules nuc_h]
+  (let [nextnuc_new (chromatin/find-nucleosome-with-head new_chromtape)
+        prevnuc_new (nth new_chromtape (first nuc_h))
+        urules (update-rules-recruitment orules prevnuc_new)] ;; after every iteration, same default rules get read in
     (update-rules-discourage-biv orules urules nextnuc_new)))
