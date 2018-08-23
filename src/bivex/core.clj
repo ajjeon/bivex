@@ -45,11 +45,12 @@
     (println "::: START SINGLE-CELL SIMULATION :::") 
 
     (eval/run-one-with-change (eval/generate_chrom_in @rules/default-rules-file @chromatin/chromatin-file (+ (rand-int 9) 1)) beforeiter afteriter)
-    
+
     (println "::: DONE SINGLE-CELL SIMULATION :::")
     (println "::: START BULK SIMULATION :::")
 
-    (eval/run-bulk (eval/generate_chrom_in @rules/default-rules-file @chromatin/chromatin-file (+ (rand-int 9) 1)) (read-string (:ncells options)) beforeiter afteriter)
+    (eval/run-bulk (read-string (:ncells options)) beforeiter afteriter)
+    
       )
     (println "::: DONE BULK SIMULATION :::")
     )

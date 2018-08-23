@@ -97,8 +97,8 @@
         beforerun (run-one init_chrom_in beforeiter)]
 ;      (reset! rules/default-rules-file @rules/new-rules-file)
     (run-one (assoc
-              (assoc beforerun :rules new-rules)
-              :orules new-rules) afteriter)
+                (assoc beforerun :rules new-rules)
+                :orules new-rules) afteriter)
     (plot/plot-nucleo-mat @save-chromtape)
       ))
 
@@ -122,7 +122,7 @@
 
 (defn run-bulk
   "run multiple cells through iterations"
-  [chrom_in ncells beforeiter afteriter]
+  [ncells beforeiter afteriter]
   (let [cell_group (map #(generate_chrom_in @rules/default-rules-file @chromatin/chromatin-file %) (vec (repeatedly ncells #(+ (rand-int 9) 1))))
         t (pmap #(run-many-with-change % beforeiter afteriter) cell_group)
         x (map #(select-keys % [:k4mono :k27mono :biv :genex]) t)
