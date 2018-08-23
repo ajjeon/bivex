@@ -7,7 +7,7 @@
   [rule nuc]
   (assoc nuc
          (keyword (:class rule)) (:right rule)
-         :head 0))
+         :head 0)) ;(cond (= (:action rule) "methyltransferase") 1 :else 0)
 
 (defn drop-nuc
   [no_idx chromtape_idx]
@@ -36,6 +36,12 @@
   [nuc]
   (assoc nuc :head 0))
 
+(defn remove-head-chromtape
+  [chromtape nuc_h]
+  (let [nuc_h_new [(first nuc_h) (remove-head (second nuc_h))]
+        nuc_rest (chromtape-rest chromtape [(first nuc_h)])]
+    (sort (concat [nuc_h_new] nuc_rest))))
+
 (defn turnover-update-chromtape 
   [chromtape mark nuc_mark_rand_idx]
   "erases mark from the chosen nucleosome"
@@ -44,17 +50,17 @@
     (sort (concat [nuc_new] nuc_rest))))
 
 (defn turnover
-  [chromtape rule]
-  (let [mark (keyword (:class rule))
-        nuc_mark (filter #(= (mark (second %)) 1) chromtape)
+  [chromtape rule nuc_h]
+  (let [nohead_chromtape (remove-head-chromtape chromtape nuc_h)
+        mark (keyword (:class rule))
+        nuc_mark (filter #(= (mark (second %)) 1) nohead_chromtape)
         nuc_mark_rand (cond (empty? nuc_mark) nil :else (rand-nth nuc_mark))]
-    (cond (empty? nuc_mark) chromtape
-            :else (turnover-update-chromtape chromtape mark (first nuc_mark_rand)))))
+    (cond (empty? nuc_mark) nohead_chromtape
+            :else (turnover-update-chromtape nohead_chromtape mark (first nuc_mark_rand)))))
 
 (defn move-head
   [chromtape nuc_h]
-  (let [;nuc_h_new [(first nuc_h) (remove-head (second nuc_h))] 
-        nuc_n_idx (chromatin/nucleo-idx-next-head chromtape (first nuc_h))
+  (let [nuc_n_idx (chromatin/nucleo-idx-next-head chromtape (first nuc_h))
         nuc_n_new [nuc_n_idx (cast-head chromtape nuc_n_idx)]
         nuc_rest (chromtape-rest chromtape [nuc_n_idx])]
     (sort (concat [nuc_n_new] nuc_rest))))
@@ -70,7 +76,7 @@
   ;; find nucleosome with head, select a rule
   (let [nuc_h (chromatin/find-nucleosome-with-head (:chromtape chrom_in))
         rule (rules/select-rule (second nuc_h) (:rules chrom_in))
-        eval_chromtape (cond (= (:action rule) "turnover") (turnover (:chromtape chrom_in) rule)
+        eval_chromtape (cond (= (:action rule) "turnover") (turnover (:chromtape chrom_in) rule nuc_h)
                              :else (apply-rule-sub (:chromtape chrom_in) rule nuc_h))
         new_chromtape (move-head eval_chromtape nuc_h)
         new_rule (rules/update-rules new_chromtape (:orules chrom_in) nuc_h)]

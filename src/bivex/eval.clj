@@ -29,11 +29,12 @@
 
 (defn nucleo-state
   [nucleosome]
-  "0:emtpy, 1:k4mono, 2:k27mono, 3:biv"
+  "0:emtpy, 1:k4mono, 2:k27mono, 3:biv, 4:head"
   (let [k4mono (:k4 nucleosome)
         k27mono (cond (= (:k27 nucleosome) 1) 2 :else 0)
-        biv (+ k4mono k27mono)]
-    (max k4mono k27mono biv)
+        biv (+ k4mono k27mono)
+        head (cond (= (:head nucleosome) 1) 4 :else 0)]
+    (max k4mono k27mono biv head)
     ))
 
 (defn chromtape-state
@@ -41,7 +42,8 @@
   "assigns nucleo-state in a chromtape"
   (vec (->> chrom_in
               (:chromtape)
-              (map #(nucleo-state (second %))))))
+              (map #(nucleo-state (second %)))))
+  )
 
 
 (defn update-save-chromtape
@@ -73,7 +75,7 @@
   "plots updated chrom_in. only applies to single-cell iterations"
   [chrom_in]
   (let [new_chrom_in (evaluate-chrom chrom_in)]
-    (plot/plot-line (:k4mono new_chrom_in) (:k27mono new_chrom_in) (:biv new_chrom_in) (:genex new_chrom_in)) ; trace valency and gene expression
+;    (plot/plot-line (:k4mono new_chrom_in) (:k27mono new_chrom_in) (:biv new_chrom_in) (:genex new_chrom_in)) ; trace valency and gene expression
 ;    (plot/plot-bar (:chromtape new_chrom_in))     ; snapshot of valency
 ;    (Thread/sleep 100)
 ;  (println (clojure.string/join "__" (map plot/print-nucleosome (sort (:chromtape new_chrom_in))))) ; trace iteration

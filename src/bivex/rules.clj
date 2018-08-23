@@ -69,18 +69,29 @@
     (concat [new_drule] srule)
     ))
 
+
+(defn update-rates
+  "change feedback ratio"
+  [drule srule type]
+  (let [ffactor (cond (= type "methyltransferase") 2
+                      :else 5)]
+    (concat [(assoc (assoc drule
+                           :affinity (* (:affinity drule) ffactor))
+                    :abundance (* (:abundance drule) ffactor))] srule)))
+
 (defn rule-recruitment
   "mimics the recruitment by an existing methyl mark or an empty mark" ;;;;TODO
   [givenrules changem type]
   (let [drule (into {} (filter #(and (= (:action %) type)
                                       (= (:class %) changem)) givenrules)) 
         srule (map #(into {} %) (filter #(or (not= (:action %) type)
-                                              (not= (:class %) changem)) givenrules))
-        new_drule (assoc (assoc drule :affinity 20) :abundance 20)
+                                             (not= (:class %) changem)) givenrules))
         ]
-;    (println drule)
-    (concat [new_drule] srule)
-    ))
+;    (println type changem)
+;    (println givenrules)
+
+    (cond (empty? drule) givenrules
+          :else (update-rates drule srule type))))
 
 (defn update-rules-discourage-biv
   "based on the new nucleosome, discourage oppositng methyltransferase"
@@ -90,15 +101,18 @@
     (cond xtest (discourage-biv rules givenrules (name (get-key (+ (.indexOf x 1) 1))))
           :else rules)))
 
+(defn update-rules-recruitment-sub
+  "adjust rates accordingly to form loop"
+  [mark prevnuc_new rules]
+  (cond (zero? ((keyword mark) (second prevnuc_new)))
+        (rule-recruitment rules mark "demethylase")
+        :else (rule-recruitment rules mark "methyltransferase")))
+
 (defn update-rules-recruitment
   "based on the previous nucleosome, encourage recruitment by existing mark"
   [rules prevnuc_new]
-  (let [updatedrules (cond (zero? (:k4 (second prevnuc_new)))
-                           (rule-recruitment rules "k4" "demethylase")
-                           :else (rule-recruitment rules "k4" "methyltransferase"))]
-    (cond (zero? (:k27 (second prevnuc_new)))
-          (rule-recruitment updatedrules "k27" "demethylase")
-          :else           (rule-recruitment updatedrules "k27" "methyltransferase"))
+  (let [updatedrules (update-rules-recruitment-sub "k4" prevnuc_new rules)]
+    (update-rules-recruitment-sub "k27" prevnuc_new updatedrules)
     ))
 
 (defn update-rules

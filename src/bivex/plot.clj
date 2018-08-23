@@ -170,17 +170,18 @@
   [ncells allgenex beforeiter]
   (let [switches (vec (map #(when-switch? (:genex %) beforeiter) allgenex))]
 ;    (println switches)
-    (j/graph! "When stable switch happened in each cell"
-              [{:x (range ncells)
-                :y switches
-                :mode "markers"
-                :type "scatter"
-                :name "switch"}
-               {:x (range ncells)
-                :y (repeat ncells beforeiter) 
-                :mode "lines"
-                :type "scatter"
-                :name "EZH2i added"}])
+    (j/graph!
+     "When stable switch happened in each cell"
+     [{:x (range ncells)
+       :y switches
+       :mode "markers"
+       :type "scatter"
+       :name "switch"}
+      {:x (range ncells)
+       :y (repeat ncells beforeiter) 
+       :mode "lines"
+       :type "scatter"
+       :name "EZH2i added"}])
     ))
 
 ;; (defn genex-box-plot
@@ -203,4 +204,11 @@
 
 (defn plot-nucleo-mat
   [save-chromtape]
-  (j/graph! "Mark evolution" [{:z save-chromtape :type "heatmap"}]))
+  (j/graph!
+   "Mark evolution"
+   [{:z save-chromtape :type "heatmap"} 
+]    {:autosize "false"
+     :width 1200
+     :height 800}
+))
+
