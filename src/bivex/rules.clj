@@ -116,8 +116,8 @@
 (defn locus-dependent
   "locus-specific recruitment of rules"
   [nextnuc_new]
-  (cond (= (:locus (second nextnuc_new)) 1) [4 1]
-        (= (:locus (second nextnuc_new)) 2) [1 4]
+  (cond (= (:locus (second nextnuc_new)) 1) [10 1]
+        (= (:locus (second nextnuc_new)) 2) [1 10]
         :else [1 1]))
 
 (defn discourage-biv
