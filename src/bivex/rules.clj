@@ -28,9 +28,23 @@
   (let [methyls (map name (drop 1 (keys nuc)))]
     (reduce into [] (map #(get-rules-mark % nuc rules) methyls)) ))
 
+(defn wrand 
+  "Rich Hickey's (2008) solution from ants.clj. given a vector of slice sizes, returns the index of a slice given a
+  random spin of a roulette wheel with compartments proportional to
+  slices."
+  [slices]
+  (let [total (reduce + slices)
+        r (rand total)]
+    (loop [i 0 sum 0]
+      (if (< r (+ (slices i) sum))
+        i
+        (recur (inc i) (+ (slices i) sum))))))
+
 (defn select-weighted-rule
   [rules]
-  (rand-nth (vec (concat (flatten (map #(repeat (* (* (:affinity %) (:abundance %)) 100) %) rules))))))
+  (let [wchoice (wrand (vec (map #(* (:affinity %) (:abundance %)) rules)))]
+;    (println wchoice)
+    (nth rules wchoice)))
 
 (defn select-rule
   "among all the applicable rules, select a rule with the highest prob. If more than one, select one at random"
@@ -67,44 +81,60 @@
   (assoc (assoc rule :affinity (* (:affinity rule) mfactor))
           :abundance (* (:abundance rule) mfactor)))
 
-;; (defn feedback
-;;   [rules mark action mfactor]
-;;   (let [action_rule (filter-rule rules mark (cond (= action "positive") "methyltransferase"
-;;                                                   :else "demethylase"))
-;;         maintain_rule (filter-rule rules mark (cond (= action "positive") "maintenance1"
-;;                                                     :else "maintenance2"))
-;;         action_rule_new (update-rule-rates action_rule mfactor)
-;;         maintain_rule_new (update-rule-rates maintain_rule mfactor)
-;;         other_rules (filter-rule-rest rules [action_rule maintain_rule])]
-;;     (vec (concat [action_rule_new] [maintain_rule] other_rules)))
-;;   )
+(defn print-rule
+  [rule]
+  (clojure.string/join "\t" (map #(get rule %) (keys rule)))
+  )
 
-
-
+(defn print-rules
+  [rules]
+  (let [prules (clojure.string/join "\n" (map #(print-rule %) rules))]
+  (println (clojure.string/join "\t" (map #(name %) (keys (first rules)))))
+  (println prules)))
 
 (defn feedback
   [rules mark mfactor]
-  (let [action_rule (filter-rule rules mark (cond (> mfactor 1) "methyltransferase"
-                                                  :else "demethylase"))
-        maintain_rule (filter-rule rules mark (cond (> mfactor 1) "maintenance1"
-                                                    :else "maintenance2"))
-        action_rule_new (update-rule-rates action_rule mfactor)
-        maintain_rule_new (update-rule-rates maintain_rule mfactor)
-        other_rules (filter-rule-rest rules [action_rule maintain_rule])]
-    (vec (concat [action_rule_new] [maintain_rule] other_rules))))
+  (let [pfactor mfactor
+        nfactor (double (/ 1 mfactor))
+        action_rule (filter-rule rules mark "methyltransferase")
+        daction_rule (filter-rule rules mark "demethylase")
+        maintain_rule (filter-rule rules mark "maintenance1")
+        maintain2_rule (filter-rule rules mark "maintenance2")
+        turnover_rule (filter-rule rules mark "turnover1")
+        turnover2_rule (filter-rule rules mark "turnover2")
+        action_rule_new [(update-rule-rates action_rule pfactor)] 
+        daction_rule_new [(update-rule-rates daction_rule nfactor)]
+        maintain_rule_new [(update-rule-rates maintain_rule pfactor)]
+        maintain2_rule_new [(update-rule-rates maintain2_rule nfactor)] 
+;        turnover_rule_new [(update-rule-rates turnover_rule pfactor)] 
+;        turnover2_rule_new [(update-rule-rates turnover2_rule nfactor)] 
+;        other_rules (filter-rule-rest rules [action_rule maintain_rule])
+        ]
+
+;    (print-rules (vec (concat [action_rule_new] [maintain_rule] other_rules)))
+    (vec (concat action_rule_new daction_rule_new maintain_rule_new maintain2_rule_new [turnover_rule] [turnover2_rule]))))
 
 (defn feedback-sub
   [rules mfactors]
-  (let [urules (cond (not= (first mfactors) 1) (feedback rules "k4" (first mfactors)) :else rules)]
-    (cond (not= (second mfactors) 1) (feedback rules "k27" (second mfactors)) :else urules)))
+  (let [m4rules (cond (not= (first mfactors) 1)
+                     (feedback rules "k4" (first mfactors))
+                     :else
+                     (vec (filter #(= (:class %) "k4") rules)))
+        m27rules (cond (not= (second mfactors) 1)
+                     (feedback rules "k27" (second mfactors))
+                     :else
+                     (vec (filter #(= (:class %) "k27") rules)))]
+;    (println mfactors)
+;    (println (concat m4rules m27rules)) 
+    (concat m4rules m27rules)))
 
 
 (defn recruitment-based-sub
   [mark prevnuc_new]
   (cond (zero? ((keyword mark) (second prevnuc_new)))
-        0.5
+        1
 ;        (feedback rules mark "negative")
-        :else 4 ;(feedback rules mark "positive")
+        :else 2 ;(feedback rules mark "positive")
         ))
 
 (defn recruitment-based
@@ -116,15 +146,15 @@
 (defn locus-dependent
   "locus-specific recruitment of rules"
   [nextnuc_new]
-  (cond (= (:locus (second nextnuc_new)) 1) [10 1]
-        (= (:locus (second nextnuc_new)) 2) [1 10]
+  (cond (= (:locus (second nextnuc_new)) 1) [4 1]
+        (= (:locus (second nextnuc_new)) 2) [1 4]
         :else [1 1]))
 
 (defn discourage-biv
   [nextnuc_new]
   (cond (or (= (:k4 (second nextnuc_new)) 1) (= (:k27 (second nextnuc_new)) 1))
-        (cond (= (:k4 (second nextnuc_new)) 1) [1 0.1]
-              (= (:k27 (second nextnuc_new)) 1) [0.1 1])
+        (cond (= (:k4 (second nextnuc_new)) 1) [1 0.5]
+              (= (:k27 (second nextnuc_new)) 1) [0.5 1])
         :else [1 1]))
 
 (defn update-rules

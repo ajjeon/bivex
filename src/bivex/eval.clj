@@ -33,8 +33,9 @@
   (let [k4mono (:k4 nucleosome)
         k27mono (cond (= (:k27 nucleosome) 1) 2 :else 0)
         biv (+ k4mono k27mono)
-        head (cond (= (:head nucleosome) 1) 4 :else 0)]
-    (max k4mono k27mono biv head)
+        head (cond (= (:head nucleosome) 1) 4 :else 0)
+        ]
+    (max k4mono k27mono biv head) ; 
     ))
 
 (defn chromtape-state
