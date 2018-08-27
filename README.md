@@ -1,16 +1,21 @@
 # Bivex
 
-[last updated 17/08/18]
+[last updated 27/08/18]
 [not fully automated yet]
 
 Bivex is a stochastic simulator for transcriptional regulation by bivalent chromatin mark patterns (H3K4me3 and H3K27me3) and gene expression. A string of nucleosomes ("chromtape", mimicking promoter region of a gene) undergoes iterations where the chromatin mark pattern gets updated by histone modifiers ("rules"). At each iteration, the chromatin mark pattern is considered in calling the transcriptional status (ON/OFF).
 
 The basic unit of operation in Bivex simulates the process of gene regulation by chromatin marks in a single cell. By running it over many cells and by looking at the overall result, Bivex also simulates population level histone mark patterns and gene expression outcome (i.e. typical data obtained from ChIP-seq and RNA-seq).
 
-Bivex implements both linear and looping based mark spreading.
+## Main features
 
-![alt text](doc/mark-spreading-through-looping.png)
+1. linear and looping based mark spreading.
 
+![alt text](doc/demo-interaction.png)
+
+2. Locus dependent recruitment of modifiers (e.g. CpG island)
+
+![alt text](doc/demo-locus.png)
 
 ## Requirement
 
