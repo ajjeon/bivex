@@ -1,7 +1,6 @@
 (ns bivex.files
   (:require [clojure.data.csv :as csv])
-  (:require [clojure.java.io :as io])
-)
+  (:require [clojure.java.io :as io]))
 
 (defn csv-data->maps [csv-data]
   (map zipmap
@@ -29,8 +28,3 @@
 (defn read-in-chromatin
   [cfile]
   (map-indexed (fn [i v] [i v]) (read-in-file cfile)))
-
-;; (read-in-file "resources/rules.csv")
-;; (read-in-chromatin "resources/chromtape.csv")
-
-

@@ -10,10 +10,9 @@
 
 (defn find-idx-with-inter
   "Find the position of the nucleosome with interaction mark"
-  [chromtape i]
+  [chromtape]
   (let [allinter (remove nil? (map #(when (= (:inter (second %)) 1) %) chromtape))]
-    (map first allinter)
-    ))
+    allinter))
 
 (defn nucleo-idx-next-head-linear
   "Decide where to move head - linear"
@@ -24,14 +23,14 @@
 
 (defn subby-idx
   [itemlist boolist]
-  (remove nil? (map #(cond (not (nth boolist %)) (nth itemlist %)) (range 2))))
+  (remove nil? (map #(cond (not (nth boolist %)) (nth itemlist %)) (range (count itemlist)))))
 
 (defn nucleo-idx-next-head-loop
   "Decide where to move head - loop"
   [chromtape i]
-  (let [interpair (remove nil? (map #(when (= (:inter (second %)) 1) %) chromtape))
+  (let [interpair (find-idx-with-inter chromtape)
         whichpair (map #(= % i) (map first interpair))]
-    (first (first (subby-idx interpair whichpair)))))
+    (first (rand-nth (subby-idx interpair whichpair)))))
 
 (defn nucleo-idx-next-head
   [chromtape i]

@@ -45,7 +45,8 @@
 (defn turnover-update-chromtape 
   [chromtape mark nuc_mark_rand_idx]
   "erases mark from the chosen nucleosome"
-  (let [nuc_new [nuc_mark_rand_idx (assoc (second (nth chromtape nuc_mark_rand_idx)) mark 0)] 
+  (let [nuc_new [nuc_mark_rand_idx
+                 (assoc (second (nth chromtape nuc_mark_rand_idx)) mark 0)] 
         nuc_rest (chromtape-rest chromtape [nuc_mark_rand_idx])]
     (sort (concat [nuc_new] nuc_rest))))
 
@@ -76,8 +77,10 @@
   ;; find nucleosome with head, select a rule
   (let [nuc_h (chromatin/find-nucleosome-with-head (:chromtape chrom_in))
         rule (rules/select-rule (second nuc_h) (:rules chrom_in))
-        eval_chromtape (cond (= (:action rule) "turnover") (turnover (:chromtape chrom_in) rule nuc_h)
-                             :else (apply-rule-sub (:chromtape chrom_in) rule nuc_h))
+        eval_chromtape (cond (= (:action rule) "turnover")
+                             (turnover (:chromtape chrom_in) rule nuc_h)
+                             :else
+                             (apply-rule-sub (:chromtape chrom_in) rule nuc_h))
         new_chromtape (move-head eval_chromtape nuc_h)
         new_rule (rules/update-rules new_chromtape (:orules chrom_in) nuc_h)]
 ;    (println rule)
@@ -87,8 +90,7 @@
    :genex (:genex chrom_in)
    :chromtape (sort new_chromtape)
    :rules (vec new_rule) 
-   :orules (:orules chrom_in)}
-  ))
+   :orules (:orules chrom_in)}))
 
 (defn check-valency
   "check valency of the given chromtape"
@@ -99,14 +101,14 @@
         xor (map #(bit-xor %1 %2) k4total k27total)
         k4mono (map #(bit-and %1 %2) k4total xor)
         k27mono (map #(bit-and %1 %2) k27total xor)]
-  {:k4mono (vector (apply + k4mono)) :k27mono (vector (apply + k27mono)) :biv (vector (apply + biv))}))
+    {:k4mono (vector (apply + k4mono))
+     :k27mono (vector (apply + k27mono))
+     :biv (vector (apply + biv))}))
 
 (defn gene-on?
      "calls gene expression outcome and multiplies by the transcriptional rate"
      [k4mono k27mono biv trate]
-;  (println trate)
-  (cond (> k4mono (+ k27mono 1)          ;(max k27mono biv)
-           ) [trate]
+  (cond (> k4mono (+ k27mono 1)) [trate] ;; this is where we set the gene expression threshold
         :else [0]))
 
 (defn call-valency-per-cell

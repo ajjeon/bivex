@@ -22,10 +22,11 @@
              ["-r" "--newrules" "newrules"]
              ["-n" "--aftern" "aftern"] ; invoke new rulesets after certain iters
              ["-h" "--help" "Show help" :default false :flag true]
-             ["-v" "--verbose" "debug mode" :default false :flag true])
+             ["-v" "--verbose" "debug mode" :default false :flag true]
+             ["-p" "--plot" "graphs" :default false :flag true])
         beforeiter (read-string (:aftern options)) 
-        afteriter (- (read-string (:niters options)) (read-string (:aftern options)))
-        ]
+        afteriter (- (read-string (:niters options))
+                     (read-string (:aftern options)))]
 
     (println options)
 
@@ -44,14 +45,22 @@
     (println "Opening the browser for graphs...")
     (println "::: START SINGLE-CELL SIMULATION :::") 
 
-    (eval/run-one-with-change (eval/generate_chrom_in @rules/default-rules-file @chromatin/chromatin-file (+ (rand-int 9) 1)) beforeiter afteriter)
+    (when (:plot options)
+      (reset! bivex.eval/plot? true))
+
+    (eval/run-one-with-change
+     (eval/generate_chrom_in @rules/default-rules-file @chromatin/chromatin-file (+ (rand-int 9) 1))
+     beforeiter afteriter)
 
     (println "::: DONE SINGLE-CELL SIMULATION :::")
     (println "::: START BULK SIMULATION :::")
 
-    (eval/run-bulk (read-string (:ncells options)) beforeiter afteriter)
+    (eval/run-bulk
+     (read-string (:ncells options))
+     beforeiter afteriter)
     
       )
-    (println "::: DONE BULK SIMULATION :::")
+  (println "::: DONE BULK SIMULATION :::")
+  (System/exit 0)
     )
 

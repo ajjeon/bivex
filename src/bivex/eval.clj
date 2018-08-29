@@ -8,14 +8,17 @@
   (:gen-class))
 
 (def save-chromtape (atom [[]])) ;; important for this atom to be updated and used only in single-cell runs
+(def plot? (atom false))
+
 
 (defn generate_chrom_in [rfile cfile trate]
   (let [chromtape (files/read-in-chromatin cfile)
-        k4mono (:k4mono (cell/check-valency chromtape))
-        k27mono (:k27mono (cell/check-valency chromtape))
-        biv (:biv (cell/check-valency chromtape))
-        rules (files/read-in-file rfile)
-        ]
+        prom_chromtape (filter #(= (:position (second %)) 1) chromtape)
+        valency (cell/check-valency prom_chromtape)
+        k4mono (:k4mono valency)
+        k27mono (:k27mono valency)
+        biv (:biv valency)
+        rules (files/read-in-file rfile)]
 ;    (println trate)
     {:k4mono k4mono
      :k27mono k27mono
@@ -24,8 +27,7 @@
      :chromtape chromtape
      :trate trate
      :rules rules
-     :orules rules}
-    ))
+     :orules rules}))
 
 (defn nucleo-state
   [nucleosome]
@@ -33,18 +35,15 @@
   (let [k4mono (:k4 nucleosome)
         k27mono (cond (= (:k27 nucleosome) 1) 2 :else 0)
         biv (+ k4mono k27mono)
-        head (cond (= (:head nucleosome) 1) 4 :else 0)
-        ]
-    (max k4mono k27mono biv head) ; 
-    ))
+        head (cond (= (:head nucleosome) 1) 4 :else 0)]
+    (max k4mono k27mono biv head)))
 
 (defn chromtape-state
   [chrom_in]
   "assigns nucleo-state in a chromtape"
   (vec (->> chrom_in
               (:chromtape)
-              (map #(nucleo-state (second %)))))
-  )
+              (map #(nucleo-state (second %))))))
 
 
 (defn update-save-chromtape
@@ -69,39 +68,45 @@
      :chromtape new_chromtape
      :rules (:rules new_chrom_in)
      :orules (:orules chrom_in)
-     :trate (:trate chrom_in)}
-))
+     :trate (:trate chrom_in)}))
 
 (defn evaluate-chrom-with-plot
   "plots updated chrom_in. only applies to single-cell iterations"
   [chrom_in]
   (let [new_chrom_in (evaluate-chrom chrom_in)]
-;    (plot/plot-line (:k4mono new_chrom_in) (:k27mono new_chrom_in) (:biv new_chrom_in) (:genex new_chrom_in)) ; trace valency and gene expression
-;    (plot/plot-bar (:chromtape new_chrom_in))     ; snapshot of valency
-;    (Thread/sleep 100)
-;  (println (clojure.string/join "__" (map plot/print-nucleosome (sort (:chromtape new_chrom_in))))) ; trace iteration
-                                        ;    (println new_new_chrom_in)
+    (when @plot?
+      (plot/plot-line (:k4mono new_chrom_in)
+                      (:k27mono new_chrom_in)
+                      (:biv new_chrom_in)
+                      (:genex new_chrom_in)) ; trace valency and gene expression
+      (plot/plot-bar (:chromtape new_chrom_in))     ; snapshot of valency
+      (Thread/sleep 100)
+;  (println (clojure.string/join "__" (map plot/print-nucleosome (sort (:chromtape new_chrom_in)))))
+      )
     (update-save-chromtape new_chrom_in)
-    new_chrom_in
-    ))
+    new_chrom_in))
 
 ;;;; for single-cell simulations
 (defn run-one
   "run one cell through iterations"
   [chrom_in itern]
-   (last (take itern (iterate evaluate-chrom-with-plot chrom_in)))
-)
+   (last (take itern (iterate evaluate-chrom-with-plot chrom_in))))
 
 (defn run-one-with-change
   [init_chrom_in beforeiter afteriter]
   (let [new-rules (files/read-in-file @rules/new-rules-file)
-        beforerun (run-one init_chrom_in beforeiter)]
+        beforerun (run-one init_chrom_in beforeiter)
+        new_chrom_in (run-one (assoc
+                               (assoc beforerun :rules new-rules)
+                               :orules new-rules) afteriter)]
 ;      (reset! rules/default-rules-file @rules/new-rules-file)
-    (run-one (assoc
-                (assoc beforerun :rules new-rules)
-                :orules new-rules) afteriter)
-    (plot/plot-nucleo-mat @save-chromtape)
-      ))
+
+    (plot/plot-nucleo-mat (drop 1 @save-chromtape)
+                          (vec (remove nil?
+                                       (map #(cond (= (:position (second %)) 1) (first %))
+                                            (:chromtape init_chrom_in))))
+                          (+ 10 (count (:chromtape init_chrom_in)))
+                          (:genex new_chrom_in))))
 
 ;;;; for multiple-cell simulations
 

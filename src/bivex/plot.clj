@@ -119,8 +119,7 @@
 (defn get-sum-marks-nucleosome
   "calculates how many 'mark' is present at each chromtape"
   [chrom_in n mark]
-  (apply + (map #(mark (second (nth (:chromtape %) n))) chrom_in))
-)
+  (apply + (map #(mark (second (nth (:chromtape %) n))) chrom_in)))
 
 (defn plot-bar-sum
   "scatter plot for cumulative histone marks across nucleosomes from many cells"
@@ -160,16 +159,12 @@
     (cond (and (= (nth sub-genex beforeiter) 0) (= (last sub-genex) 1))
           (cond (some #(= % 1) sub-genex-pre) (when-switch?* sub-genex-pre beforeiter)
           :else nil)
-          :else nil)
-     
-;; (cond (= (last sub-genex) 1) (when-switch?* sub-genex)
-;;           :else 0)
-    ))
+          :else nil)))
 
 (defn when-switch-plot
   [ncells allgenex beforeiter]
   (let [switches (vec (map #(when-switch? (:genex %) beforeiter) allgenex))]
-;    (println switches)
+    (println switches)
     (j/graph!
      "When stable switch happened in each cell"
      [{:x (range ncells)
@@ -181,34 +176,29 @@
        :y (repeat ncells beforeiter) 
        :mode "lines"
        :type "scatter"
-       :name "EZH2i added"}])
-    ))
+       :name "EZH2i added"}])))
 
-;; (defn genex-box-plot
-;;   [allgenex]
-;;   (j/graph! "Gene expression levels"
-;;             [{:y (vec (map #(last (:genex %)) allgenex))
-;;               :type "box"}])
-;;   )
-
-;; (j/graph! "Gene expression levels"
-;;           [{:y k4monotx
-;;             :type "box"
-;;             :name "K4mono"}
-;;            {:y k27monotx
-;;             :type "box"
-;;             :name "K27mono"}
-;;            {:y bivtx
-;;             :type "box"
-;;             :name "Biv"}])
 
 (defn plot-nucleo-mat
-  [save-chromtape]
+  [save-chromtape geneidx chromtape_count genex]
+;  (println genex)
   (j/graph!
    "Mark evolution"
-   [{:z save-chromtape :type "heatmap"} 
-]    {:autosize "false"
+   [{:x [1]
+     :z save-chromtape
+     :type "heatmap"
+     ;:colorscale "Jet"
+     }
+    {:x [(first geneidx) (last geneidx)]
+     :y [-100 -100]
+     :mode "lines"
+     :type "scatter"}
+    {:x [-1]
+     :z (apply mapv vector [(vec (map #(cond (zero? %) 0 :else 1) genex))])
+     :type "heatmap"
+     :showscale false
+     :colorscale "Viridis"}]
+   {:autosize "false"
      :width 1200
-     :height 800}
-))
+     :height 1200}))
 
