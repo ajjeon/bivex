@@ -39,7 +39,7 @@
       (println banner)
       (System/exit 0))
 
-    (j/start-jutsu!)
+;    (j/start-jutsu!)
     (Thread/sleep 500)
     (println "Opening the browser for graphs...")
     (println "::: START SINGLE-CELL SIMULATION :::") 
