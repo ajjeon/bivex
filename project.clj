@@ -9,4 +9,4 @@
                  [org.clojure/tools.cli "0.3.1"]]
   :main bivex.core
 ;  :jvm-opts ["--add-modules" "java.xml.bind"]
-  )
+)

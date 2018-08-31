@@ -54,10 +54,71 @@
   (reset! save-chromtape (merge @save-chromtape (chromtape-state chrom_in))))
 
 
+;;;;;;;;;;;;;;;;;;
+
+(defn find-inters
+  [chromtape idx]
+  (let [inters (vec (map first
+                         (remove nil?
+                                 (map
+                                  #(cond (= (:inter (second %)) 1) %)
+                                  chromtape))))]
+    (vec (remove #(= % idx) inters))))
+
+(defn select-dir
+  [idx maxidx]
+  (cond (zero? idx) "right"
+        (= idx maxidx) "left"
+        :else (rand-nth ["left" "right"])))
+
+(defn get-left
+  [idx maxidx]
+  (remove #(< % 0) (range (- idx 3) idx))) ;; adjust neighbour proximity
+
+(defn get-right
+  [idx maxidx]
+  (remove #(> % maxidx) (range (inc idx) (+ idx 4))))
+
+(defn find-adjacent
+  [chromtape idx maxidx]
+  (let [dir (select-dir idx maxidx)
+        adj (cond (= "left" dir) (get-left idx maxidx)
+                  :else (get-right idx maxidx))
+        inters (cond (= (:inter (second (nth chromtape idx))) 1)
+                     (find-inters chromtape idx))
+        adjidx (vec (remove nil? (concat adj inters)))]
+    (map #(nth chromtape %) adjidx)))
+
+(defn test2
+  [chrom_in]
+  (let [idx (first (rand-nth (:chromtape chrom_in)))
+        maxidx (first (last (:chromtape chrom_in)))
+        adjnuc (find-adjacent (:chromtape chrom_in) idx maxidx)
+        ;;; adjust rule according to adjnuc pattern
+        idx1 [(cond (zero? idx) nil :else (dec idx))] 
+        idx2 [(cond (= (inc idx)  (count (:chromtape chrom_in))) nil :else (inc idx))] 
+        inters 
+        neighbours (vec (remove nil? (concat idx1 idx2 inters)))]
+    (println idx idx1 idx2 inters neighbours)
+    ))
+
 (defn evaluate-chrom
   "applies a selected rule and update the chrom_in"
   [chrom_in]
-  (let [new_chrom_in (cell/apply-rule chrom_in)
+  (let [idx (first (rand-nth (:chromtape chrom_in)))
+        idx1 (vec (cond (zero? idx) nil :else (dec idx))) 
+        idx2 (vec (cond (= (inc idx)  (count (:chromtape chrom_in))) nil :else (inc idx))) 
+        inters (cond (= (:inter (second (nth (:chromtape chrom_in) idx))) 1)
+                     (find-inters (:chromtape chrom_in) idx))
+        neighbours (vec (remove nil? (concat idx1 idx2 inters))) 
+
+;;;;;
+        
+; select a nucleosome at random
+; check neighbouring nucleosomes
+        
+
+new_chrom_in (cell/apply-rule chrom_in)
         new_chromtape (:chromtape new_chrom_in)
         y (into (:k4mono chrom_in) (:k4mono (cell/check-valency new_chromtape)))
         y2 (into (:k27mono chrom_in) (:k27mono (cell/check-valency new_chromtape)))
