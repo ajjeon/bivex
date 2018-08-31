@@ -35,8 +35,10 @@
   (let [k4mono (:k4 nucleosome)
         k27mono (cond (= (:k27 nucleosome) 1) 2 :else 0)
         biv (+ k4mono k27mono)
-        head (cond (= (:head nucleosome) 1) 4 :else 0)]
-    (max k4mono k27mono biv head)))
+;        head (cond (= (:head nucleosome) 1) 4 :else 0)
+        ]
+    (max k4mono k27mono biv ;head
+         )))
 
 (defn chromtape-state
   [chrom_in]
@@ -70,19 +72,22 @@
      :orules (:orules chrom_in)
      :trate (:trate chrom_in)}))
 
+(defn one-plot
+  [new_chrom_in]
+  (plot/plot-line (:k4mono new_chrom_in)
+                  (:k27mono new_chrom_in)
+                  (:biv new_chrom_in)
+                  (:genex new_chrom_in)) ; trace valency and gene expression
+  (plot/plot-bar (:chromtape new_chrom_in))     ; snapshot of valency
+  (Thread/sleep 100)
+                                        ;  (println (clojure.string/join "__" (map plot/print-nucleosome (sort (:chromtape new_chrom_in)))))
+  )
+
 (defn evaluate-chrom-with-plot
   "plots updated chrom_in. only applies to single-cell iterations"
   [chrom_in]
   (let [new_chrom_in (evaluate-chrom chrom_in)]
-    (when @plot?
-      (plot/plot-line (:k4mono new_chrom_in)
-                      (:k27mono new_chrom_in)
-                      (:biv new_chrom_in)
-                      (:genex new_chrom_in)) ; trace valency and gene expression
-      (plot/plot-bar (:chromtape new_chrom_in))     ; snapshot of valency
-      (Thread/sleep 100)
-;  (println (clojure.string/join "__" (map plot/print-nucleosome (sort (:chromtape new_chrom_in)))))
-      )
+    (when @plot? (one-plot new_chrom_in))
     (update-save-chromtape new_chrom_in)
     new_chrom_in))
 
@@ -123,13 +128,14 @@
 ;      (reset! rules/default-rules-file @rules/new-rules-file)
     (run-many (assoc
                (assoc beforerun :rules new-rules)
-               :orules new-rules) afteriter)
-      ))
+               :orules new-rules) afteriter)))
 
 (defn run-bulk
   "run multiple cells through iterations"
   [ncells beforeiter afteriter]
-  (let [cell_group (map #(generate_chrom_in @rules/default-rules-file @chromatin/chromatin-file %) (vec (repeatedly ncells #(+ (rand-int 9) 1))))
+  (let [cell_group (map #(generate_chrom_in
+                          @rules/default-rules-file @chromatin/chromatin-file %)
+                        (vec (repeatedly ncells #(+ (rand-int 9) 1))))
         t (pmap #(run-many-with-change % beforeiter afteriter) cell_group)
         x (map #(select-keys % [:k4mono :k27mono :biv :genex]) t)
         t2 (map #(map last (vals %)) x)
@@ -137,14 +143,14 @@
         k4mono (vec (map #(nth % 0) (vec t2)))
         k27mono (vec (map #(nth % 1) (vec t2)))
         biv (vec (map #(nth % 2) (vec t2)))
-        genex (vec (map #(nth % 3) (vec t2)))
-        ]
+        genex (vec (map #(nth % 3) (vec t2)))]
 ;    (println allgenex)
 ;    (println (apply + k4mono) (apply + k27mono) (apply + biv) (apply + genex))
-    (plot/plot-cell-all k4mono k27mono biv genex)
-    (plot/plot-cell-sum k4mono k27mono biv genex ncells)
-    (plot/plot-bar-sum t)
-    (plot/when-switch-plot ncells allgenex beforeiter)
+    ;; (plot/plot-cell-all k4mono k27mono biv genex)
+    ;; (plot/plot-cell-sum k4mono k27mono biv genex ncells)
+    ;; (plot/plot-bar-sum t)
+    ;; (println ncells allgenex beforeiter)
+   ;; (plot/when-switch-plot ncells allgenex beforeiter)
     (map #(last (:genex %)) allgenex) 
 ;    (plot/genex-box-plot allgenex)
     ))

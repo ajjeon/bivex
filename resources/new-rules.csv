@@ -1,5 +1,5 @@
 class,action,left,right,affinity,abundance
-"k27","methyltransferase",0,1,1,1
+"k27","methyltransferase",0,1,10,10
 "k27","demethylase",1,0,5,5
 "k27","turnover1",1,0,50,10
 "k27","turnover2",0,0,50,10
