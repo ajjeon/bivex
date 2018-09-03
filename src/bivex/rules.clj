@@ -1,6 +1,7 @@
 (ns bivex.rules
   (:require [bivex.files :as files])
-  (:require [bivex.chromatin :as chromatin]))
+  (:require [bivex.chromatin :as chromatin])
+  (:require [bivex.tools :as tools]))
 
 (def default-rules-file (atom "resources/rules.csv"))
 (def new-rules-file (atom "resources/new-rules.csv"))
@@ -112,7 +113,11 @@
         ]
 
 ;    (print-rules (vec (concat [action_rule_new] [maintain_rule] other_rules)))
-    (vec (concat action_rule_new daction_rule_new maintain_rule_new maintain2_rule_new [turnover_rule] [turnover2_rule]))))
+    (vec (concat action_rule_new
+                 daction_rule_new
+                 maintain_rule_new
+                 maintain2_rule_new
+                 [turnover_rule] [turnover2_rule]))))
 
 (defn feedback-sub
   [rules mfactors]
@@ -129,42 +134,93 @@
     (concat m4rules m27rules)))
 
 
-(defn recruitment-based-sub
-  [mark prevnuc_new]
-  (cond (zero? ((keyword mark) (second prevnuc_new)))
-        1
-;        (feedback rules mark "negative")
-        :else 2 ;(feedback rules mark "positive")
-        ))
+(defn find-inters
+  [chromtape idx]
+  (let [inters (vec (map first
+                         (remove nil?
+                                 (map
+                                  #(cond (= (:inter (second %)) 1) %)
+                                  chromtape))))]
+    (vec (remove #(= % idx) inters))))
+
+(defn select-dir
+  [idx maxidx]
+  (cond (zero? idx) "right"
+        (= idx maxidx) "left"
+        :else (rand-nth ["left" "right"])))
+
+(defn get-left
+  [idx maxidx]
+  (remove #(< % 0) (range (- idx 1) idx))) ;; adjust neighbour proximity
+
+(defn get-right
+  [idx maxidx]
+  (remove #(> % maxidx) (range (inc idx) (+ idx 2))))
+
+(defn find-adjacent
+  [chromtape idx maxidx]
+  (let [dir (select-dir idx maxidx)
+        adj (cond (= "left" dir) (get-left idx maxidx)
+                  :else (get-right idx maxidx))
+        inters (cond (= (:inter (second (nth chromtape idx))) 1)
+                     (find-inters chromtape idx))
+        adjidx (vec (remove nil? (concat adj inters)))]
+    (map #(nth chromtape %) adjidx)))
+
+(defn nuc-condition
+  [nucs mark]
+  (let [marksum (apply + (->> nucs
+                              (map second)
+                              (map (keyword mark))))
+        middle (int (/ (count nucs) 2))]
+    (cond (= marksum middle) 1
+          (> marksum middle) 1.5
+          (< marksum middle) 0.8)))
 
 (defn recruitment-based
-  [prevnuc_new]
-  [(recruitment-based-sub "k4" prevnuc_new)
-   (recruitment-based-sub "k27" prevnuc_new)])
-
+  [nucs]
+  [(nuc-condition nucs "k4") (nuc-condition nucs "k27")])
 
 (defn locus-dependent
   "locus-specific recruitment of rules"
   [nextnuc_new]
-  (cond (= (:locus (second nextnuc_new)) 1) [4 1]
-        (= (:locus (second nextnuc_new)) 2) [1 4]
+  (cond (= (:locus (second nextnuc_new)) 1) [2 1]
+        (= (:locus (second nextnuc_new)) 2) [1 2]
         :else [1 1]))
 
 (defn discourage-biv
   [nextnuc_new]
   (cond (or (= (:k4 (second nextnuc_new)) 1) (= (:k27 (second nextnuc_new)) 1))
-        (cond (= (:k4 (second nextnuc_new)) 1) [1 0.5]
-              (= (:k27 (second nextnuc_new)) 1) [0.5 1])
+        (cond (= (:k4 (second nextnuc_new)) 1) [1 0.1]
+              (= (:k27 (second nextnuc_new)) 1) [0.1 1])
         :else [1 1]))
 
 (defn update-rules
-  [new_chromtape orules nuc_h]
-  (let [nextnuc_new (chromatin/find-nucleosome-with-head new_chromtape)
-        prevnuc_new (nth new_chromtape (first nuc_h))
-        mfactors_r (recruitment-based prevnuc_new)
-        mfactors_l (locus-dependent nextnuc_new)
-        mfactors_b (discourage-biv nextnuc_new)
+  [adjnucs nuc orules]
+  (let [mfactors_r (recruitment-based adjnucs)
+        mfactors_l (locus-dependent nuc)
+        mfactors_b (discourage-biv nuc)
         mfactors [ (* (first mfactors_r) (first mfactors_l) (first mfactors_b))
-                  (* (second mfactors_r) (second mfactors_l) (second mfactors_b))]] ;; after every iteration, same default rules get read in
+                  (* (second mfactors_r) (second mfactors_l) (second mfactors_b))]]
     (feedback-sub orules mfactors)))
+
+
+(defn turnover-update-chromtape 
+  [chromtape mark nuc_mark_rand_idx]
+  "erases mark from the chosen nucleosome"
+  (let [nuc_new [nuc_mark_rand_idx
+                 (assoc (second (nth chromtape nuc_mark_rand_idx)) mark 0)] 
+        nuc_rest (tools/chromtape-rest chromtape [nuc_mark_rand_idx])]
+    (sort (concat [nuc_new] nuc_rest))))
+
+(defn turnover
+  [chromtape rule nuc_h]
+  (let [nohead_chromtape (tools/remove-head-chromtape chromtape nuc_h)
+        mark (keyword (:class rule))
+        nuc_mark (filter #(= (mark (second %)) 1) nohead_chromtape)
+        nuc_mark_rand (cond (empty? nuc_mark) nil :else (rand-nth nuc_mark))]
+    (cond (empty? nuc_mark) nohead_chromtape
+            :else (turnover-update-chromtape nohead_chromtape mark (first nuc_mark_rand)))))
+
+
 
