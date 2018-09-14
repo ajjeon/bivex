@@ -53,6 +53,8 @@
         y3 (into (:biv chrom_in) (:biv (cell/check-valency prom_chromtape)))
         genex (into (:genex chrom_in) (cell/gene-on? (last y) (last y2) (last y3) (:trate chrom_in)))]
     (update-save-chromtape new_chromtape)
+    ;; (println rule)
+    ;; (println (clojure.string/join "__" (map plot/print-nucleosome (sort new_chromtape))))
     {:k4mono y
      :k27mono y2
      :biv y3

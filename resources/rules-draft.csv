@@ -1,0 +1,11 @@
+class,action,left,right,affinity,abundance
+"k4","methyltransferase",0,1,1,1
+"k4","turnover",1,0,1,1
+"k4","demethylase",1,0,1,1
+"k4","maintenance",0,0,1,1
+"k4","maintenance",1,1,1,1
+"k27","methyltransferase",0,1,2,2
+"k27","turnover",1,0,2,2
+"k27","demethylase",1,0,1,1
+"k27","maintenance",0,0,1,1
+"k27","maintenance",1,1,2,2

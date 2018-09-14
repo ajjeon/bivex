@@ -184,16 +184,16 @@
 ;  (println genex)
   (j/graph!
    "Mark evolution"
-   [{:x [1]
+   [{:x [0]
      :z save-chromtape
      :type "heatmap"
      ;:colorscale "Jet"
      }
-    {:x [(first geneidx) (last geneidx)]
+    {:x [(first geneidx) (inc (last geneidx))]
      :y [-100 -100]
      :mode "lines"
      :type "scatter"}
-    {:x [-1]
+    {:x [-2]
      :z (apply mapv vector [(vec (map #(cond (zero? %) 0 :else 1) genex))])
      :type "heatmap"
      :showscale false
